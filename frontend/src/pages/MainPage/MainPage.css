@@ -1,0 +1,165 @@
+/* Import Google Font (Poppins or Roboto) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #9A616D;
+}
+
+/* Ensure full-screen height */
+.login-container {
+  justify-content: center;
+  display: flex;
+  height: 92vh;
+  padding: 20px; /* Prevents elements from sticking to edges*/
+}
+
+/* Left side - Image */
+.left-side {
+  flex: 1;
+  background: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp') no-repeat center center/cover;
+  display: none; /*Hide on small screens */
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+@media (min-width: 768px) {
+  .left-side {
+    display: block;
+  }
+}
+
+/* Right side - Form */
+.right-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  padding: 20px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+/* Form Wrapper */
+.form-wrapper {
+  width: 400px;
+}
+
+/* Card Styling */
+.login-card {
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+/* Login Title */
+.login-title {
+  font-size: 40px;
+  color: #6c757d;
+  margin-bottom: 50px;
+  margin-top: 40px;
+  text-align: center;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px; /* Space between input fields */
+  text-align: left;
+  margin-bottom: 45px;
+}
+
+/* Input Labels */
+.input-container label {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Input Fields */
+.input-field {
+  position: relative;
+  width: 100%; /* Ensures proper width */
+}
+
+.input-field input {
+  width: 100%;
+  height: 40px;
+  font-size: 20px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  background-color: white;
+  transition: border 0.3s ease-in-out;
+}
+
+/* Focus Effect - Highlight Border */
+.input-field input:focus {
+  border-color: #666;
+}
+
+/* Login Button */
+.login-button {
+  display: flex;
+  background-color: #332f2c;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  text-align: center;
+  border: none;
+  outline: none;
+  white-space: nowrap;
+  overflow: hidden;
+  user-select: none; /* Prevents text selection */
+  position: relative; /* Ensures content stays in place */
+}
+
+.login-button span {
+  position: absolute; /* Keeps text fixed in place */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%); /* Centers text perfectly */
+  pointer-events: none; /* Allows button clicks */
+}
+
+.login-button:active {
+  transform: scale(0.95); /* Prevents resizing */
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Links */
+.forgot-links {
+  text-align: right;
+  margin-top: 40px;
+}
+
+.forgot-password {
+  font-size: 15px;
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.new-account {
+  text-align: right;
+  margin-top: 20px;
+}
+
+.register-link {
+  font-size: 14px;
+  color: #393f81;
+  text-decoration: none;
+}
