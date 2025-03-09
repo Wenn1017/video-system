@@ -18,7 +18,7 @@ body {
 .left-login {
   flex: 1;
   background: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp') no-repeat center center/cover;
-  display: none; /*Hide on small screens */
+  display: none; /*Hide on small screens*/
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
 }
@@ -50,8 +50,8 @@ body {
 .login-title {
   font-size: 40px;
   color: #6c757d;
-  margin-bottom: 50px;
-  margin-top: 40px;
+  margin-bottom: 30px;
+  margin-top: 30px;
   text-align: center;
 }
 
@@ -59,7 +59,7 @@ body {
   display: flex;
   flex-direction: column;
   text-align: left;
-  margin-bottom: 35px;
+  margin-bottom: 20px;
 }
 
 /* Input Labels */
@@ -110,13 +110,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   user-select: none; /* Prevents text selection */
-}
-
-.button-login {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
+  position: relative; /* Ensures content stays in place */
 }
 
 .login-button span {
@@ -131,14 +125,21 @@ body {
   transform: scale(0.95); /* Prevents resizing */
 }
 
+.button-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
 /* Links */
 .forgot-links {
   text-align: right;
-  margin-top: 40px;
+  margin-top: 30px;
 }
 
 .forgot-password {
-  font-size: 15px;
+  font-size: 17px;
   color: #6c757d;
   text-decoration: none;
 }
@@ -146,11 +147,17 @@ body {
 .new-account {
   text-align: right;
   margin-top: 20px;
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .register-link {
-  font-size: 15px;
+  font-size: 17px;
   color: #393f81;
   text-decoration: none;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
 }

@@ -1,150 +1,143 @@
-from flask import request
+from flask_jwt_extended import create_access_token
 from pymongo import ASCENDING
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, decode_token
-from werkzeug.security import generate_password_hash, check_password_hash
 import database as database
 
-# Function to register a new user
-def register_user():
+# Add user into the database
+def add_user(user_data, bcrypt):
     try:
-        user_data = request.json
-        required_fields = ["username", "email", "password"]
-
-        # Check if required fields are provided
-        if not all(field in user_data for field in required_fields):
-            return {"error": "Missing required fields"}
-
-        # Check if user already exists
+        # Create database connection and collection object
         db = database.database_connection()
-        users = db["users"]
+        users = db["user"]
+
+        # Check if the email already exists (email must be unique)
         existing_user = users.find_one({"email": user_data["email"]})
-        if existing_user:
-            return {"error": "Email already registered"}
 
-        # Hash password before storing
-        hashed_password = generate_password_hash(user_data["password"])
-        user_data["password"] = hashed_password
+        if not existing_user:
+            hashed_password = bcrypt.generate_password_hash(user_data["password"]).decode("utf-8")
+            user_data["password"] = hashed_password
+            users.insert_one(user_data)
 
-        # Insert into database
-        inserted_id = users.insert_one(user_data).inserted_id
-        return {"success": "User registered successfully", "id": str(inserted_id)}
-
+            return {"success": "User registered successfully"}
+        else:
+            return {"error": "Email already exists!"}
+    
     except Exception as e:
         return {"warning": f"Exception error: {str(e)}"}
-    
-# Function to add a new user to the database
-def add_user(user, bcrypt):
-    try:
-        # Create database connection and connection object
-        db = database.database_connection()
-        users = db["users"]
-        
-        # Check if the user already exists in the database
-        existing_user = users.find_one({"email": user['email']})
-        
-        if existing_user:
-            return {"error": "User already exists."}
-        
-        # Hash the password for security purposes
-        hashed_password = bcrypt.generate_password_hash(user["password"]).decode('utf-8')
-        user["password"] = hashed_password
-        
-        # Insert new user into the database
-        users.insert_one(user)
-    except Exception as e:
-        return {"warning": f"Exception error: {str(e)}"}
-    
-    return {"success": "User added successfully"}
 
-# Function to retrieve all users from the database
+# Get all users
 def get_all_users():
+
     user_list = []
+
     try:
         # Create database connection and connection object
         db = database.database_connection()
-        # Retrieve and sort users by email
-        users = db["users"].find().sort("email", ASCENDING)
-        
-        # Extract relevant user information
-        for u in users:
-            user_list.append({
-                "username": u["username"],
-                "email": u["email"]
-            })
+        users = db["user"]
+
+        # Search all employee and return the one result
+        result = users.find().sort([("email", ASCENDING)])
+
+        if result:
+            for i in result:
+                user_record = {
+                    "email": i["email"],
+                    "username": i["username"],
+                }
+                user_list.append(user_record)
+        else:
+            return {"info": "No users found."}
+    
     except Exception as e:
         return {"warning": f"Exception error: {str(e)}"}
     
     return user_list
 
-# Function to retrieve a specific user based on email
-def get_user(email):
+# Retrieve a single user
+def get_user(user_data):
     try:
         db = database.database_connection()
-        user = db["users"].find_one({"email": email})
-        
-        if user:
+        users = db["user"]
+
+        user_record = users.find_one({"email": user_data["email"]})
+
+        if user_record:
             return {
-                "username": user["username"],
-                "email": user["email"],
+                "email": user_record["email"],
+                "username": user_record["username"],
             }
         else:
-            return {"error": "User not found"}
+            return {"error": "User does not exist!"}
+    
     except Exception as e:
         return {"warning": f"Exception error: {str(e)}"}
 
-# Function to update a user's information
-def update_user(user):
+# Update user data
+def update_user(user_data):
     try:
         db = database.database_connection()
-        users = db["users"]
-        
-        # Define query and update parameters
-        filter_query = {"email": user['email']}
-        update_query = {"$set": {"username": user['username']}}
-        
-        result = users.update_one(filter_query, update_query)
-        
-        if result.modified_count > 0:
-            return {"success": "User profile updated successfully"}
-        else:
-            return {"error": "No changes made or user not found"}
+        users = db["user"]
+
+        existing_user = users.find_one({"email": user_data["email"]})
+
+        if existing_user:
+            update_query = {"$set": {"username": user_data["username"]}}
+            result = users.update_one({"email": user_data["email"]}, update_query)
+
+            if result.modified_count > 0:
+                updated_user = users.find_one({"email": user_data["email"]})
+
+                identity = {
+                    "email": updated_user["email"],
+                    "username": updated_user["username"],
+                }
+                access_token = create_access_token(identity=identity)
+
+                return {"success": "User profile updated successfully", "token": access_token}
+            else:
+                return {"error": "Failed to update the user profile!"}
+    
     except Exception as e:
         return {"warning": f"Exception error: {str(e)}"}
 
-# Function to delete a user from the database
+# Delete user
 def delete_user(email):
     try:
         db = database.database_connection()
-        users = db["users"]
-        
-        # Attempt to delete the user
-        result = users.delete_one({"email": email})
-        
-        if result.deleted_count > 0:
-            return {"success": "User deleted successfully"}
+        users = db["user"]
+
+        existing_user = users.find_one({"email": email})  # Find user first
+
+        if existing_user:
+            users.delete_one({"email": email})  # Now delete
+            return {"success": f"User {existing_user['username']} deleted successfully"}
         else:
-            return {"error": "User not found"}
+            return {"error": "User not found!"}
+
     except Exception as e:
         return {"warning": f"Exception error: {str(e)}"}
 
-# Function to handle user login and authentication
-def login_user(login_data, bcrypt):
+# User login (using email & password)
+def login_user(user_login, bcrypt):
     try:
         db = database.database_connection()
-        users = db["users"]
-        
-        # Check if the provided email exists in the database
-        user = users.find_one({"email": login_data['email']})
-        
-        # Verify password and generate JWT token if successful
-        if user and bcrypt.check_password_hash(user['password'], login_data['password']):
+        users = db["user"]
+
+        user_record = users.find_one({"email": user_login["email"]})
+
+        if user_record and bcrypt.check_password_hash(user_record["password"], user_login["password"]):
             identity = {
-                'username': user['username'],
-                'email': user['email']
+                "email": user_record["email"],
+                "username": user_record["username"],
             }
-            token = create_access_token(identity=identity)
-            return {"success": f"Welcome back, {user['username']}!", "token": token}
+            access_token = create_access_token(identity=identity)
+
+            return {"success": f"Welcome back, {user_record['username']}!", "token": access_token}
         else:
-            return {"error": "Invalid email or password"}
+            return {"error": "Login failed! Incorrect email or password."}
+
+    except KeyError:
+        return {"error": "Invalid key in user_login"}
+    except TypeError:
+        return {"error": "Invalid data type in user_login"}
     except Exception as e:
-        return {"error": f"Exception error: {str(e)}"}
+        return {"error": str(e)}
