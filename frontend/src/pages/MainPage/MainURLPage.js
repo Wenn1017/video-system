@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import "./CockatooInterface.css";
-import { FaUpload, FaFileAlt, FaLanguage } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import "./MainURLPage.css";
 
-function MainURL() {
+function MainURLPage() {
   const [dragOver, setDragOver] = useState(false);
+  const navigate = useNavigate();
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -21,35 +22,35 @@ function MainURL() {
   };
 
   return (
-    <div className="container">
+    <div className="main-url-page">
+    <div className="main-container">
       {/* Sidebar */}
-      <div className="sidebar">
-        <h2 className="logo">cockatoo</h2>
+      <div className="main-sidebar">
+        <h2 className="main-logo">cockatoo</h2>
         <ul>
-          <li className="active">
-            <FaUpload className="icon" />
-            Upload
+          <li className="main-active">Upload</li>
+          <li onClick={() => navigate("/transcripts")} style={{ cursor: "pointer" }}>
+            Transcripts
           </li>
-          <li>
-            <FaFileAlt className="icon" />
-            Your transcripts
-          </li>
-          <li>
-            <FaLanguage className="icon" />
-            Translate
-          </li>
+          <li>Notes</li>
+          <li onClick={() => navigate("/mainurl/translate")} style={{ cursor: "pointer" }}>
+            Translate</li>
+          <li>History</li>
         </ul>
-        <button className="upgrade-btn">Upgrade to Pro</button>
+        <button className="main-upgrade-btn">Upgrade to Pro</button>
       </div>
 
       {/* Main Content */}
-      <div className="main-content">
-        <div className="header">
-          <p>You're on the free tier. Get more transcripts, full-length exports, and more with Cockatoo Pro. <a href="#">Upgrade Now</a></p>
+      <div className="main-primary-content">
+        <div className="main-header">
+          <p>
+            You're on the free tier. Get more transcripts, full-length exports, and more with Cockatoo Pro.{" "}
+            <a href="#">Upgrade Now</a>
+          </p>
         </div>
 
-        <div className="upload-section">
-          <label className="dropdown">
+        <div className="main-upload-section">
+          <label className="main-dropdown">
             Language:
             <select>
               <option>English</option>
@@ -57,7 +58,7 @@ function MainURL() {
               <option>French</option>
             </select>
           </label>
-          <label className="dropdown">
+          <label className="main-dropdown">
             Number of people speaking:
             <select>
               <option>Detect automatically</option>
@@ -70,21 +71,26 @@ function MainURL() {
 
         {/* Drag and Drop Box */}
         <div
-          className={`drop-box ${dragOver ? "drag-over" : ""}`}
+          className={`main-drop-box ${dragOver ? "drag-over" : ""}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          <p>Drop an audio or video file here<br />or click to browse</p>
+          <p>
+            Drop an audio or video file here
+            <br />
+            or click to browse
+          </p>
         </div>
 
-        <div className="import-section">
+        <div className="main-import-section">
           <p>Import with a share link (Dropbox, Google Drive, etc)</p>
-          <button className="import-btn">Import</button>
+          <button className="main-import-btn">Import</button>
         </div>
       </div>
+    </div>
     </div>
   );
 }
 
-export default MainURL;
+export default MainURLPage;
