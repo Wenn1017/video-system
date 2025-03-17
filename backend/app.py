@@ -6,7 +6,7 @@ from config import ApplicationConfig
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import database
 import user  # Your module for user login/signup
-# import video_processing  # Your module for video analysis
+import backend.transcription as transcription
 
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
@@ -34,7 +34,7 @@ CORS(app)
 #         current_user = get_jwt_identity()
 #         return jsonify({"email": current_user})
 
-# Resource class to handle user-related operations
+# _________________________ USER LOG IN & SIGN UP API ___________________________
 class api_user(Resource):
     # Register a new user
     def post(self):
@@ -71,47 +71,66 @@ class api_login(Resource):
         user_data = request.get_json()
         return jsonify(user.login_user(user_data, bcrypt))
 
-# # _________________________ VIDEO PROCESSING API ___________________________
+# _________________________ TRANSCRIPTION API ___________________________
 
-# class UploadVideo(Resource):
-#     @jwt_required()
-#     def post(self):
-#         if 'video' not in request.files:
-#             return jsonify({"error": "No video file uploaded"})
-        
-#         video = request.files['video']
-#         return jsonify(video_processing.process_video(video))
+class UploadVideo(Resource):
+    @jwt_required()
+    def post(self):
+        """Upload video and process transcription."""
+        if "file" in request.files:
+            file = request.files["file"]
+            return jsonify(transcription.process_video(file))
+        elif "url" in request.form:
+            url = request.form["url"]
+            return jsonify(transcription.process_youtube_video(url))
+        return jsonify({"error": "No video file or URL provided"}), 400
 
-# class GetVideoTranscript(Resource):
-#     @jwt_required()
-#     def get(self):
-#         video_id = request.args.get("video_id")
-#         if not video_id:
-#             return jsonify({"error": "Missing video ID"})
-        
-#         return jsonify(video_processing.get_transcript(video_id))
+class GetTranscription(Resource):
+    @jwt_required()
+    def get(self):
+        """Retrieve a transcription from MongoDB by filename."""
+        filename = request.args.get("filename")
+        if not filename:
+            return jsonify({"error": "Filename is required"}), 400
+        return jsonify(transcription.get_transcription_by_filename(filename))
 
-# class GetVideoSummary(Resource):
-#     @jwt_required()
-#     def get(self):
-#         video_id = request.args.get("video_id")
-#         if not video_id:
-#             return jsonify({"error": "Missing video ID"})
-        
-#         return jsonify(video_processing.get_summary(video_id))
+class GetAllTranscriptions(Resource):
+    @jwt_required()
+    def get(self):
+        """Retrieve all stored transcriptions."""
+        return jsonify(transcription.get_all_transcriptions())
 
+class UpdateTranscription(Resource):
+    @jwt_required()
+    def put(self):
+        """Update an existing transcription."""
+        data = request.get_json()
+        filename = data.get("filename")
+        new_text = data.get("transcription_text")
+        if not filename or not new_text:
+            return jsonify({"error": "Filename and new text are required"}), 400
+        return jsonify(transcription.update_transcription(filename, new_text))
+
+class DeleteTranscription(Resource):
+    @jwt_required()
+    def delete(self):
+        """Delete a transcription from MongoDB."""
+        data = request.get_json()
+        filename = data.get("filename")
+        if not filename:
+            return jsonify({"error": "Filename is required"}), 400
+        return jsonify(transcription.delete_transcription(filename))
 
 # _________________________ REGISTER API ENDPOINTS ___________________________
-
-# api.add_resource(api_signup, '/signup')   # User Signup
-# api.add_resource(api_login, '/login')     # User Login
-# api.add_resource(api_user, '/user')                    # Get user details
-# api.add_resource(UploadVideo, '/upload_video')               # Upload video for processing
-# api.add_resource(GetVideoTranscript, '/get_transcript')      # Retrieve transcript of a video
-# api.add_resource(GetVideoSummary, '/get_summary')            # Get summarized notes from a video
 api.add_resource(api_user, '/user')                       # Create, Update, Delete User
 api.add_resource(api_get_user, '/get_user')               # Get a single user
 api.add_resource(api_login, '/login')                     # Login
+
+api.add_resource(UploadVideo, "/upload_video")
+api.add_resource(GetTranscription, "/get_transcription")
+api.add_resource(GetAllTranscriptions, "/get_all_transcriptions")
+api.add_resource(UpdateTranscription, "/update_transcription")
+api.add_resource(DeleteTranscription, "/delete_transcription")
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./TranslationPage.css"; // Import the CSS file
 
-const TranslatePage = () => {
+const TranslationPage = () => {
   const [originalText, setOriginalText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
   const [originalLanguage, setOriginalLanguage] = useState("Detect");
@@ -11,22 +12,28 @@ const TranslatePage = () => {
     // Simulate translation process
     setTranslatedText(`Translated version of: ${originalText}`);
   };
-
+const navigate = useNavigate();
   return (
-    <div className="translate-container">
-      <div className="sidebar">
-        <h2 className="logo">cockatoo</h2>
+    <div className="translation-page">
+      <div className="translation-container">
+      {/* Sidebar */}
+      <div className="translation-sidebar">
+        <h2 className="translation-logo">Video Analysis and Note Generation System</h2>
         <ul>
-          <li>Upload</li>
-          <li>Your transcripts</li>
+        <li onClick={() => navigate("/mainURL")} style={{ cursor: "pointer" }}>
+            Upload
+          </li>
+          <li>Transcripts</li>
+          <li>Notes</li>
           <li className="active">Translate</li>
+          <li>History</li>
         </ul>
-        <button className="upgrade-btn">Upgrade to Pro</button>
+        {/* <button className="main-upgrade-btn">Upgrade to Pro</button> */}
       </div>
 
-      <div className="main-content">
-        <div className="translate-box">
-          <div className="language-selection">
+      <div className="translation-main-content">
+        <div className="translation-box">
+          <div className="translation-language-selection">
             <div>
               <label>Original Language</label>
               <select value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)}>
@@ -47,7 +54,7 @@ const TranslatePage = () => {
             </div>
           </div>
 
-          <div className="text-area-container">
+          <div className="translation-text-area-container">
             <textarea
               placeholder="Enter text to translate..."
               value={originalText}
@@ -60,11 +67,12 @@ const TranslatePage = () => {
             />
           </div>
 
-          <button className="translate-btn" onClick={handleTranslate}>Translate</button>
+          <button className="translation-btn" onClick={handleTranslate}>Translate</button>
         </div>
       </div>
+    </div>
     </div>
   );
 };
 
-export default TranslatePage;
+export default TranslationPage;
