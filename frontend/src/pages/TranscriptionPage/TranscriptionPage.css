@@ -1,0 +1,63 @@
+/* General Page Styling */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Header */
+.header {
+    background-color: #1e1e1e;
+    width: 80%;
+    max-width: 900px;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.video-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Buttons */
+.export-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    background-color: #4fa3d1;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn:hover {
+    background-color: #358bbf;
+}
+
+/* Transcription Box */
+.transcription-container {
+    width: 80%;
+    max-width: 900px;
+    background-color: #1e1e1e;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.transcription p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #bbb;
+}
+
+.timestamp {
+    font-weight: bold;
+    color: #4fa3d1;
+    margin-top: 15px;
+}

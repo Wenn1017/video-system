@@ -43,7 +43,7 @@ function SignUpPage() {
       // setType(type);
 
       if (response.status === 200) {
-        navigate("/login");
+        navigate("/mainURL");
       }
     } catch (error) {
       console.error(error);
