@@ -94,9 +94,9 @@ function MainPage() {
           <ul>
             <li className="main-active">Upload</li>
             <li onClick={() => navigate("/transcription")} style={{ cursor: "pointer" }}>Transcription</li>
-            <li>Notes</li>
+            <li onClick={() => navigate("/summary")} style={{ cursor: "pointer" }}>Notes</li>
             <li onClick={() => navigate("/translation")} style={{ cursor: "pointer" }}>Translation</li>
-            <li>History</li>
+            <li onClick={() => navigate("/history")} style={{ cursor: "pointer" }}>History</li>
           </ul>
         </div>
 
@@ -113,15 +113,6 @@ function MainPage() {
                 <option>English</option>
                 <option>Spanish</option>
                 <option>French</option>
-              </select>
-            </label>
-            <label className="main-dropdown">
-              Number of people speaking:
-              <select>
-                <option>Detect automatically</option>
-                <option>1</option>
-                <option>2</option>
-                <option>3+</option>
               </select>
             </label>
           </div>
@@ -149,27 +140,6 @@ function MainPage() {
           <button className="main-upload-btn" onClick={handleUpload} disabled={loading}>
             {loading ? "Processing..." : "Upload & Transcribe"}
           </button>
-
-          <div className="main-import-section">
-            <p>Import with a share link (YouTube, Dropbox, Google Drive, etc.)</p>
-            <input
-              type="text"
-              value={importLink}
-              onChange={(e) => setImportLink(e.target.value)}
-              placeholder="Enter video URL"
-            />
-            <button className="main-import-btn" onClick={handleImport} disabled={loading}>
-              {loading ? "Processing..." : "Import"}
-            </button>
-          </div>
-
-          {/* Display Transcription Result */}
-          {transcription && (
-            <div className="transcription-result">
-              <h3>Transcription Result:</h3>
-              <pre>{transcription}</pre>
-            </div>
-          )}
         </div>
       </div>
     </div>

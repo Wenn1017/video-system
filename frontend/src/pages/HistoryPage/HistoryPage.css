@@ -1,0 +1,90 @@
+/* History Page Container */
+.history-page {
+    display: flex;
+    height: 100vh;
+    background-color: #1e1e1e;
+    color: white;
+  }
+  
+  /* Sidebar */
+  .transcription-sidebar {
+    width: 250px;
+    background-color: #242424;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .transcription-logo {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .transcription-sidebar ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .transcription-sidebar li {
+    padding: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .transcription-sidebar li:hover,
+  .transcription-active {
+    background-color: #3a3a3a;
+    border-radius: 5px;
+  }
+  
+  /* Main Content */
+  .history-content {
+    flex: 1;
+    padding: 20px;
+  }
+  
+  .history-content h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* History Item */
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .history-title {
+    font-weight: bold;
+  }
+  
+  .history-date {
+    font-size: 14px;
+    color: #bbb;
+  }
+  
+  /* Buttons */
+  button {
+    padding: 8px 12px;
+    margin-left: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }  
