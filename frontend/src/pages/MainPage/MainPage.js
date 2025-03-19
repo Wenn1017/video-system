@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./MainURLPage.css";
+import "./MainPage.css";
 
-function MainURLPage() {
+function MainPage() {
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [importLink, setImportLink] = useState("");
@@ -93,13 +93,9 @@ function MainURLPage() {
           <h2 className="main-logo">Video Analysis and Note Generation System</h2>
           <ul>
             <li className="main-active">Upload</li>
-            <li onClick={() => navigate("/mainurl/transcript")} style={{ cursor: "pointer" }}>
-              Transcripts
-            </li>
+            <li onClick={() => navigate("/transcription")} style={{ cursor: "pointer" }}>Transcription</li>
             <li>Notes</li>
-            <li onClick={() => navigate("/mainurl/translation")} style={{ cursor: "pointer" }}>
-              Translate
-            </li>
+            <li onClick={() => navigate("/translation")} style={{ cursor: "pointer" }}>Translation</li>
             <li>History</li>
           </ul>
         </div>
@@ -180,4 +176,4 @@ function MainURLPage() {
   );
 }
 
-export default MainURLPage;
+export default MainPage;

@@ -6,7 +6,8 @@ from config import ApplicationConfig
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import database
 import user  # Your module for user login/signup
-import backend.transcription as transcription
+import transcription
+from translation import translate_text
 
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
@@ -120,6 +121,9 @@ class DeleteTranscription(Resource):
         if not filename:
             return jsonify({"error": "Filename is required"}), 400
         return jsonify(transcription.delete_transcription(filename))
+    
+# _________________________ TRANSCRIPTION API ___________________________
+app.add_url_rule("/translate", view_func=translate_text, methods=["POST"])
 
 # _________________________ REGISTER API ENDPOINTS ___________________________
 api.add_resource(api_user, '/user')                       # Create, Update, Delete User

@@ -31,7 +31,7 @@ function LoginPage() {
       
       if (data.token) {
         localStorage.setItem("token", data.token);
-        navigate("/mainURL");
+        navigate("/main");
       } else {
         navigate("/");
       }

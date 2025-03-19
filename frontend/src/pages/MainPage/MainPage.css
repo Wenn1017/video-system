@@ -23,7 +23,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-bottom: 300px;
+    padding-bottom: 100px;
+    overflow-y: auto;
 }
   
 .main-logo {
@@ -38,6 +39,11 @@ body {
     color: white;
     text-align: center;
     z-index: 1000; /* Ensures it stays above other elements */
+}
+
+.main-active {
+    background: #1e2228;
+    border-radius: 10px;
 }
   
 .main-sidebar ul {

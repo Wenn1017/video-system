@@ -5,7 +5,7 @@ import speech_recognition as sr
 from langdetect import detect, DetectorFactory
 from pymongo import MongoClient
 from pytube import YouTube
-from moviepy.editor import VideoFileClip
+from moviepy import VideoFileClip
 import database  # Import database module
 
 DetectorFactory.seed = 0  # Ensure consistent language detection
