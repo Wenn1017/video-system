@@ -136,28 +136,3 @@ body {
 .main-drop-box.drag-over {
     background-color: #333;
 }
-  
-/* Import Section */
-.main-import-section {
-    background-color: #222;
-    color:white;
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-  
-.main-import-btn {
-    background-color: #4fa3d1;
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-  
-.main-import-btn:hover {
-    background-color: #358bbf;
-}

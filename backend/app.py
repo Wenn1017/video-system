@@ -75,15 +75,16 @@ class api_login(Resource):
 # _________________________ TRANSCRIPTION API ___________________________
 
 class UploadVideo(Resource):
-    @jwt_required()
     def post(self):
         """Upload video and process transcription."""
         if "file" in request.files:
             file = request.files["file"]
-            return jsonify(transcription.process_video(file))
+            transcript = transcription.process_video(file)
+            return jsonify({'combined_transcription': transcript})
         elif "url" in request.form:
             url = request.form["url"]
-            return jsonify(transcription.process_youtube_video(url))
+            transcript = transcription.process_youtube_video(url)
+            return jsonify({'combined_transcription': transcript})
         return jsonify({"error": "No video file or URL provided"}), 400
 
 class GetTranscription(Resource):
@@ -138,20 +139,3 @@ api.add_resource(DeleteTranscription, "/delete_transcription")
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-# # app.py
-# from flask import Flask
-# from video_routes import video_routes
-# from transcription_routes import transcription_routes
-# from notes_routes import notes_routes
-
-# app = Flask(__name__)
-
-# # Register the blueprints
-# app.register_blueprint(video_routes)
-# app.register_blueprint(transcription_routes)
-# app.register_blueprint(notes_routes)
-
-# if __name__ == '__main__':
-#     app.run(debug=True)

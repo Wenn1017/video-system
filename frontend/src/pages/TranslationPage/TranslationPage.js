@@ -43,10 +43,10 @@ const TranslationPage = () => {
           <h2 className="translation-logo">Video Analysis and Note Generation System</h2>
           <ul>
             <li onClick={() => navigate("/main")} style={{ cursor: "pointer" }}>Upload</li>
-            <li onClick={() => navigate("/transcription")} style={{ cursor: "pointer" }}>Transcripts</li>
-            <li>Notes</li>
+            <li onClick={() => navigate("/transcription")} style={{ cursor: "pointer" }}>Transcript</li>
+            <li onClick={() => navigate("/summary")} style={{ cursor: "pointer" }}>Note</li>
             <li className="translation-active">Translate</li>
-            <li>History</li>
+            <li onClick={() => navigate("/history")} style={{ cursor: "pointer" }}>History</li>
           </ul>
         </div>
 
