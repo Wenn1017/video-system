@@ -8,6 +8,7 @@ import database
 import user  # Your module for user login/signup
 import transcription
 from translation import translate_text
+from flask_cors import cross_origin
 
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
@@ -15,7 +16,8 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
 api = Api(app)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+
 
 # # _________________________ USER AUTHENTICATION API ___________________________
 
@@ -88,13 +90,14 @@ class UploadVideo(Resource):
         return jsonify({"error": "No video file or URL provided"}), 400
 
 class GetTranscription(Resource):
-    @jwt_required()
+    @cross_origin(origin="http://localhost:3000", headers=["Content-Type", "Authorization"])
     def get(self):
-        """Retrieve a transcription from MongoDB by filename."""
         filename = request.args.get("filename")
         if not filename:
             return jsonify({"error": "Filename is required"}), 400
-        return jsonify(transcription.get_transcription_by_filename(filename))
+
+        return get_transcription_by_filename(filename)  # ✅ Now it accepts an argument
+
 
 class GetAllTranscriptions(Resource):
     @jwt_required()
@@ -123,7 +126,7 @@ class DeleteTranscription(Resource):
             return jsonify({"error": "Filename is required"}), 400
         return jsonify(transcription.delete_transcription(filename))
     
-# _________________________ TRANSCRIPTION API ___________________________
+# _________________________ TRANSLATION API ___________________________
 app.add_url_rule("/translate", view_func=translate_text, methods=["POST"])
 
 # _________________________ REGISTER API ENDPOINTS ___________________________
@@ -132,7 +135,7 @@ api.add_resource(api_get_user, '/get_user')               # Get a single user
 api.add_resource(api_login, '/login')                     # Login
 
 api.add_resource(UploadVideo, "/upload_video")
-api.add_resource(GetTranscription, "/get_transcription")
+api.add_resource(GetTranscription, "/get_transcription_by_filename")
 api.add_resource(GetAllTranscriptions, "/get_all_transcriptions")
 api.add_resource(UpdateTranscription, "/update_transcription")
 api.add_resource(DeleteTranscription, "/delete_transcription")

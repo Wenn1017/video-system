@@ -94,7 +94,8 @@ body {
 }
   
 /* Print button */
-.print-btn {
+.transcript-print-btn,
+.transcript-pdf-btn {
     background-color: #007bff;
     color: white;
     border: none;
@@ -103,7 +104,8 @@ body {
     cursor: pointer;
 }
   
-.print-btn:hover {
+.transcript-print-btn:hover,
+.transcript-pdf-btn:hover{
     background-color: #0056b3;
 }
   
@@ -116,29 +118,43 @@ body {
 .transcript-entry {
     display: flex;
     gap: 10px;
-    align-items: center;
+    align-items: left;
     margin-bottom: 15px;
 }
   
 /* Transcript text */
-.text {
+.transcript-text {
     color: white;
     font-size: 16px;
     flex-grow: 1; /* Makes the text take up remaining space */
 }
   
 /* Timestamp aligned to the right */
-.timestamp {
+.transcript-timestamp {
     font-size: 14px;
     color: #888;
     margin-left: 20px;
     min-width: 60px;
     text-align: left;
 }
+
+.transcript-type {
+    font-style: italic;
+    margin-right: 10px;
+  }
   
 /* Print styling */
 @media print {
-.print-btn {
-    display: none; /* Hide print button when printing */
+    .transcript-print-btn,
+    .transcript-pdf-btn {
+        display: none; /* Hide buttons when printing */
     }
-} 
+
+    .transcription-sidebar {
+        display: none; /* Hide sidebar for a clean print layout */
+    }
+
+    .transcription-container {
+        margin-left: 0; /* Adjust content to take full width */
+    }
+}

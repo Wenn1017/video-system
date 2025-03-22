@@ -6,8 +6,6 @@ import "./MainPage.css";
 function MainPage() {
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [importLink, setImportLink] = useState("");
-  const [transcription, setTranscription] = useState(""); // Store transcription result
   const [loading, setLoading] = useState(false); // Show loading state
   const navigate = useNavigate();
 
@@ -55,32 +53,15 @@ function MainPage() {
       });
 
       console.log("Transcription:", response.data);
-      setTranscription(response.data.combined_transcription);
+      // setTranscription(response.data.combined_transcription);
       alert("File uploaded and processed successfully!");
+
+      // Navigate to transcription page with transcription data
+      navigate("/transcription", { state: { transcription: response.data.combined_transcription } });
+
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("Error processing file.");
-    }
-    setLoading(false);
-  };
-
-  // ✅ Send video URL to Flask backend
-  const handleImport = async () => {
-    if (!importLink.trim()) {
-      alert("Please enter a valid video URL.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await axios.post("http://127.0.0.1:5000/upload_video", { url: importLink });
-
-      console.log("Transcription:", response.data);
-      setTranscription(response.data.combined_transcription);
-      alert("Video URL processed successfully!");
-    } catch (error) {
-      console.error("Error processing URL:", error);
-      alert("Error processing video.");
     }
     setLoading(false);
   };
@@ -93,9 +74,9 @@ function MainPage() {
           <h2 className="main-logo">Video Analysis and Note Generation System</h2>
           <ul>
             <li className="main-active">Upload</li>
-            <li onClick={() => navigate("/transcription")} style={{ cursor: "pointer" }}>Transcription</li>
-            <li onClick={() => navigate("/summary")} style={{ cursor: "pointer" }}>Notes</li>
-            <li onClick={() => navigate("/translation")} style={{ cursor: "pointer" }}>Translation</li>
+            <li onClick={() => navigate("/transcription")} style={{ cursor: "pointer" }}>Transcript</li>
+            <li onClick={() => navigate("/summary")} style={{ cursor: "pointer" }}>Note</li>
+            <li onClick={() => navigate("/translation")} style={{ cursor: "pointer" }}>Translate</li>
             <li onClick={() => navigate("/history")} style={{ cursor: "pointer" }}>History</li>
           </ul>
         </div>

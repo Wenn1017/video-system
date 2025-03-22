@@ -21,14 +21,14 @@ const HistoryPage = () => {
   return (
     <div className="history-page">
       {/* Sidebar */}
-      <div className="transcription-sidebar">
-        <h2 className="transcription-logo">Video Analysis and Note Generation System</h2>
+      <div className="history-sidebar">
+        <h2 className="history-logo">Video Analysis and Note Generation System</h2>
         <ul>
           <li onClick={() => navigate("/main")} style={{ cursor: "pointer" }}>Upload</li>
           <li onClick={() => navigate("/transcription")} style={{ cursor: "pointer" }}>Transcription</li>
           <li onClick={() => navigate("/summary")} style={{ cursor: "pointer" }}>Note</li>
           <li onClick={() => navigate("/translation")} style={{ cursor: "pointer" }}>Translation</li>
-          <li className="transcription-active">History</li>
+          <li className="history-active">History</li>
         </ul>
       </div>
 
