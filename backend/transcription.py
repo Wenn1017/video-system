@@ -6,10 +6,10 @@ import pytesseract
 import speech_recognition as sr
 from langdetect import detect, DetectorFactory
 from pymongo import MongoClient
-from pytube import YouTube
 from moviepy import VideoFileClip
 import database  # Import database module
 from pydub import AudioSegment
+import datetime
 
 DetectorFactory.seed = 0  # Ensure consistent language detection
 
@@ -26,19 +26,11 @@ def detect_language(text):
     except:
         return "unknown"  # If detection fails
 
-# Download YouTube video
-def download_youtube_video(url, upload_folder):
-    """Download YouTube video and return file path."""
-    yt = YouTube(url)
-    stream = yt.streams.get_highest_resolution()
-    video_path = os.path.join(upload_folder, "youtube_video.mp4")
-    stream.download(filename=video_path)
-    return video_path
-
 # Extract audio from video
 def extract_audio(video_path):
     """Extract audio from video and save as .wav"""
-    audio_path = video_path.replace(".mp4", ".wav")
+    base_name = os.path.splitext(video_path)[0]  # Get filename without extension
+    audio_path = f"{base_name}.wav"  # Save as .wav
     video = VideoFileClip(video_path)
     video.audio.write_audiofile(audio_path)
     return audio_path
@@ -56,31 +48,30 @@ def split_audio(file_path, chunk_length_ms=60000):
 
     return chunk_paths
 
-# Speech-to-text (STT) with automatic language detection
+# Speech-to-text (STT)
 def perform_stt(audio_path, language=None):
-    """Convert speech to text with optional auto language detection."""
+    """Convert speech to text"""
     recognizer = sr.Recognizer()
     chunk_paths = split_audio(audio_path)
-
     full_transcription = ""
+
     for chunk_path in chunk_paths:
         try:
             with sr.AudioFile(chunk_path) as source:
                 audio_data = recognizer.record(source)
                 text = recognizer.recognize_google(audio_data)
-                full_transcription += text + " "
-                print(text)
+                if text.strip():  # Check if text is not empty
+                    full_transcription += text + " "
+                    print(text)
         except sr.UnknownValueError:
             print("Speech recognition could not understand the audio.")
-            return "Error: Speech recognition could not understand the audio."
-        
         except Exception as e:
             print(f"Error transcribing {chunk_path}: {e}")
-            return f"Error: transcribing {chunk_path}: {e}"
         finally:
             os.remove(chunk_path)
 
-    return full_transcription
+    return full_transcription if full_transcription.strip() else "No speech detected."
+
     # try:
     #     if not language:  # Detect language automatically
     #         raw_text = recognizer.recognize_google(audio, language="en")  # Try English first
@@ -98,7 +89,6 @@ def perform_stt(audio_path, language=None):
 # Optical Character Recognition (OCR) with automatic language detection
 def perform_ocr(video_path, language=None):
     """Extract text from video frames."""
-
     cap = cv2.VideoCapture(video_path)
     frame_count = 0
     extracted_text = []
@@ -109,7 +99,7 @@ def perform_ocr(video_path, language=None):
             break
 
         if frame_count % 100 == 0:  # Process every 100th frame
-            print('Extracting frames ' + str(frame_count))
+            print(f'Extracting frame {frame_count}')
 
             # Convert frame (NumPy array) to PIL Image
             img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -123,86 +113,119 @@ def perform_ocr(video_path, language=None):
         frame_count += 1
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
-        
+
     cap.release()
     cv2.destroyAllWindows()
 
     final_text = "\n".join(extracted_text)
     print(final_text)
-    return final_text
+    return final_text if final_text.strip() else "No text detected."
 
 # **Add these new functions below**
 def process_video(file):
     """Process uploaded video, extract text, and save transcription."""
+    if not file:
+        return {"error": "No file uploaded."}
+
     upload_folder = "uploads"
     os.makedirs(upload_folder, exist_ok=True)
     
     video_path = os.path.join(upload_folder, file.filename)
     file.save(video_path)
 
-    # Extract audio & transcribe
-    audio_path = extract_audio(video_path)
-    stt_text = perform_stt(audio_path)
+    if not os.path.exists(video_path):
+        return {"error": "File could not be saved!"}
 
-    # Extract text using OCR
-    ocr_text = perform_ocr(video_path)
-
-    # Combine results
-    final_transcription = f"Speech-to-Text:\n{stt_text}\n\nOCR:\n{ocr_text}"
-    
-    # Save to MongoDB
-    add_transcription(file.filename, final_transcription)
-
-    return {"filename": file.filename, "transcription_text": final_transcription}
-
-def process_youtube_video(url):
-    """Download YouTube video, extract text, and save transcription."""
-    upload_folder = "uploads"
-    os.makedirs(upload_folder, exist_ok=True)
-    
-    video_path = download_youtube_video(url, upload_folder)
+    print(f"Processing video: {video_path}")
 
     # Extract audio & transcribe
     audio_path = extract_audio(video_path)
-    stt_text = perform_stt(audio_path)
+    if not os.path.exists(audio_path):
+        return {"error": "Audio extraction failed!"}
 
-    # Extract text using OCR
+    stt_text = perform_stt(audio_path)
     ocr_text = perform_ocr(video_path)
 
-    # Combine results
-    final_transcription = f"Speech-to-Text:\n{stt_text}\n\nOCR:\n{ocr_text}"
+    # Structure the transcription data
+    transcript_entries = []
     
-    # Save to MongoDB
-    add_transcription("youtube_video.mp4", final_transcription)
+    # Convert STT text into structured format
+    if stt_text:
+        for i, text in enumerate(stt_text.split('. ')):  # Assuming sentences are split by ". "
+            transcript_entries.append({
+                "time": f"{i*5}:00",  # Placeholder time (adjust based on actual timestamps)
+                "type": "STT",
+                "text": text.strip()
+            })
 
-    return {"filename": "youtube_video.mp4", "transcription_text": final_transcription}
+    # Convert OCR text into structured format
+    if ocr_text:
+        for i, text in enumerate(ocr_text.split('\n')):  # Assuming OCR lines are separated by newlines
+            transcript_entries.append({
+                "time": f"{i*10}:00",  # Placeholder time (adjust based on actual timestamps)
+                "type": "OCR",
+                "text": text.strip()
+            })
+
+    # Save to MongoDB
+    response = add_transcription(file.filename, transcript_entries)
+
+    return {"filename": file.filename, "transcription": transcript_entries, "db_status": response}
+
+    # # Combine results
+    # final_transcription = f"Speech-to-Text:\n{stt_text}\n\nOCR:\n{ocr_text}"
+    
+    # # Save to MongoDB
+    # response = add_transcription(file.filename, final_transcription)
+    
+    # return {"filename": file.filename, "transcription_text": final_transcription, "db_status": response}
 
 # Save transcription to MongoDB
 def add_transcription(filename, transcription_text):
     """Save transcription into MongoDB."""
-    db = database.database_connection()
-    transcriptions = db["transcriptions"]
-    transcription_data = {
-        "filename": filename,
-        "transcription_text": transcription_text
-    }
-    transcriptions.insert_one(transcription_data)
-    return {"success": "Transcription saved successfully"}
+    try:
+        db = database.database_connection()
+        if db is None:
+            raise Exception("Database connection failed!")
+
+        transcriptions = db["transcriptions"]
+        transcription_data = {
+            "filename": filename,
+            "transcription_text": transcription_text,
+            "created_at": datetime.datetime.utcnow()  # Add timestamp
+        }
+
+        transcriptions.insert_one(transcription_data)
+        print(f"Saved transcription for {filename}")
+        return {"success": "Transcription saved successfully"}
+    except Exception as e:
+        print(f"Error saving transcription: {e}")
+        return {"error": f"Database error: {e}"}
+
 
 # Retrieve all transcriptions
 def get_all_transcriptions():
     """Retrieve all transcriptions from MongoDB."""
     db = database.database_connection()
+    if db is None:
+        return {"error": "Database connection failed"}
+    
     transcriptions = db["transcriptions"]
-    return list(transcriptions.find({}, {"_id": 0}))
+    return list(transcriptions.find({}, {"_id": 0})) if transcriptions else []
 
 # Retrieve a transcription by filename
-def get_transcription_by_filename(filename):
-    """Retrieve a single transcription by filename."""
-    db = database.database_connection()
-    transcriptions = db["transcriptions"]
-    result = transcriptions.find_one({"filename": filename}, {"_id": 0})
-    return result if result else {"error": "Transcription not found!"}
+@app.route('/get_transcription_by_filename', methods=['GET'])
+def get_transcription_by_filename():
+    filename = request.args.get('filename')
+    transcription = db.transcriptions.find_one({"filename": filename})
+
+    if not transcription:
+        return jsonify({"error": "Transcription not found!"}), 404
+
+    return jsonify({
+        "filename": transcription["filename"],
+        "transcription_text": transcription["transcription_text"]
+    })
 
 # Update transcription data
 def update_transcription(filename, new_transcription_text):

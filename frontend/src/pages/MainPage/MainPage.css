@@ -58,10 +58,6 @@ body {
     cursor: pointer;
 }
   
-.main-sidebar li .icon {
-    margin-right: 10px;
-}
-  
 .main-sidebar li.active {
     background-color: #252525;
     border-radius: 5px;
@@ -135,4 +131,8 @@ body {
   
 .main-drop-box.drag-over {
     background-color: #333;
+}
+
+.main-upload-btn {
+    margin-top: 30px;
 }
