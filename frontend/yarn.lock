@@ -8094,6 +8094,11 @@ react-scripts@5.0.1:
   optionalDependencies:
     fsevents "^2.3.2"
 
+react-to-print@^3.0.5:
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/react-to-print/-/react-to-print-3.0.5.tgz#7569f9ac5e7854dbec79f449501fedf28cda82ab"
+  integrity sha512-Z15MwMOzYCHWi26CZeFNwflAg7Nr8uWD6FTj+EkfIOjYyjr0MXGbI0c7rF4Fgrbj3XG9hFndb1ourxpPz2RAiA==
+
 react@^19.0.0:
   version "19.0.0"
   resolved "https://registry.yarnpkg.com/react/-/react-19.0.0.tgz#6e1969251b9f108870aa4bff37a0ce9ddfaaabdd"

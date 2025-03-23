@@ -95,9 +95,7 @@ class GetTranscription(Resource):
         filename = request.args.get("filename")
         if not filename:
             return jsonify({"error": "Filename is required"}), 400
-
-        return get_transcription_by_filename(filename)  # ✅ Now it accepts an argument
-
+        return jsonify(transcription.get_transcription_by_filename(filename))  # ✅ Now it accepts an argument
 
 class GetAllTranscriptions(Resource):
     @jwt_required()
@@ -125,7 +123,9 @@ class DeleteTranscription(Resource):
         if not filename:
             return jsonify({"error": "Filename is required"}), 400
         return jsonify(transcription.delete_transcription(filename))
-    
+
+# _________________________ NLP API ___________________________
+# api.add_resource("/get_summary")    
 # _________________________ TRANSLATION API ___________________________
 app.add_url_rule("/translate", view_func=translate_text, methods=["POST"])
 
