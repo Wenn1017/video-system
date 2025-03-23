@@ -16,14 +16,17 @@ const TranscriptionPage = () => {
   
     if (!filename) {
       console.error("⚠️ Filename is missing!");
-      return;  // Stop execution if no filename
+      return;
     }
   
     console.log("Fetching transcription for filename:", filename);
   
     fetch(`http://localhost:5000/get_transcription_by_filename?filename=${encodeURIComponent(filename)}`, {
       method: "GET",
-      headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`  // Ensure token exists
+      },
     })
       .then(response => response.json())
       .then(data => {
@@ -34,14 +37,14 @@ const TranscriptionPage = () => {
         console.log("Fetched transcript data:", data);
         setVideoTitle(filename);
   
-        const combinedTranscriptions = [{ time: "0:00", text: data.transcription_text, type: "STT" }];
+        // Store the transcription text properly
+        const combinedTranscriptions = [{ time: "0:00", text: data.transcription_text || "No transcription available", type: "STT" }];
         setTranscriptions(combinedTranscriptions);
       })
       .catch(error => {
         console.error("Error fetching transcription:", error.message);
       });
   }, [searchParams]);
-  
   
   // Print Function
   const handlePrint = () => {

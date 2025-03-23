@@ -1,21 +1,40 @@
-import React, { useRef } from "react";
+import React, { useEffect, useState, useRef  } from "react";
 import { useNavigate } from "react-router-dom";
+import { useReactToPrint } from "react-to-print";
+
 import "./SummaryPage.css"; // Import the CSS file
 
 const SummaryPage = () => {
   const printRef = useRef(null);
   const navigate = useNavigate();
+  const [summary, setSummary] = useState(null);
+  const [keywords, setKeywords] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handlePrint = () => {
-    window.print();
-  };
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/get_summary")
+      .then((response) => response.json())
+      .then((data) => {
+        setSummary(data.summary_huggingface);
+        setKeywords(data.keywords_tfidf);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching summary:", error);
+        setLoading(false);
+      });
+  }, []);
 
-  // Sample summary data (Replace this with actual summarized content)
-  const summary = [
-    "Steve Jobs shares his journey of dropping out of college and how following his curiosity led him to innovations.",
-    "He emphasizes the importance of connecting the dots in life and trusting the process even when the path is unclear.",
-    "The speech highlights the significance of loving what you do and not settling until you find your passion.",
-  ];
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
+
+  // // Sample summary data (Replace this with actual summarized content)
+  // const summary = [
+  //   "Steve Jobs shares his journey of dropping out of college and how following his curiosity led him to innovations.",
+  //   "He emphasizes the importance of connecting the dots in life and trusting the process even when the path is unclear.",
+  //   "The speech highlights the significance of loving what you do and not settling until you find your passion.",
+  // ];
 
   return (
     <div className="summary-page">
@@ -41,9 +60,22 @@ const SummaryPage = () => {
 
           <div className="summary-content" ref={printRef}>
             <h2>Summary</h2>
-            {summary.map((point, index) => (
-              <p key={index} className="summary-text">{point}</p>
-            ))}
+            {loading ? (
+              <p>Loading summary...</p>
+            ) : (
+              <p className="summary-text">{summary}</p>
+            )}
+
+            <h2>Keywords</h2>
+            {loading ? (
+              <p>Loading keywords...</p>
+            ) : (
+              <ul>
+                {keywords.map((keyword, index) => (
+                  <li key={index}>{keyword}</li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>
