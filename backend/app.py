@@ -4,9 +4,9 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from config import ApplicationConfig
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-import database
 import user  # Your module for user login/signup
 import transcription
+import summary
 from translation import translate_text
 from flask_cors import cross_origin
 
@@ -16,8 +16,7 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
 api = Api(app)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
-
+CORS(app)
 
 # # _________________________ USER AUTHENTICATION API ___________________________
 
@@ -79,29 +78,30 @@ class api_login(Resource):
 class UploadVideo(Resource):
     def post(self):
         """Upload video and process transcription."""
+        
         if "file" in request.files:
             file = request.files["file"]
             transcript = transcription.process_video(file)
             return jsonify({'combined_transcription': transcript})
+        
         elif "url" in request.form:
             url = request.form["url"]
             transcript = transcription.process_youtube_video(url)
             return jsonify({'combined_transcription': transcript})
         return jsonify({"error": "No video file or URL provided"}), 400
 
+class GetAllTranscriptions(Resource):
+    def get(self):
+        """Retrieve all stored transcriptions."""
+        transcripts = transcription.get_all_transcriptions()
+        return jsonify(transcripts)
+    
 class GetTranscription(Resource):
-    @cross_origin(origin="http://localhost:3000", headers=["Content-Type", "Authorization"])
     def get(self):
         filename = request.args.get("filename")
         if not filename:
             return jsonify({"error": "Filename is required"}), 400
-        return jsonify(transcription.get_transcription_by_filename(filename))  # ✅ Now it accepts an argument
-
-class GetAllTranscriptions(Resource):
-    @jwt_required()
-    def get(self):
-        """Retrieve all stored transcriptions."""
-        return jsonify(transcription.get_all_transcriptions())
+        return jsonify(transcription.get_transcription_by_filename(filename))
 
 class UpdateTranscription(Resource):
     @jwt_required()
@@ -124,8 +124,18 @@ class DeleteTranscription(Resource):
             return jsonify({"error": "Filename is required"}), 400
         return jsonify(transcription.delete_transcription(filename))
 
-# _________________________ NLP API ___________________________
-# api.add_resource("/get_summary")    
+# _________________________ NLP API ___________________________ 
+class Summary(Resource):
+    def post(self):
+        data = request.json
+        transcription = data.get("transcription", "")
+
+        if not transcription:
+            return jsonify({"error": "No transcription provided"}), 400
+
+        result = summary.generate_summary_and_keywords(transcription)
+        return jsonify(result)
+
 # _________________________ TRANSLATION API ___________________________
 app.add_url_rule("/translate", view_func=translate_text, methods=["POST"])
 
@@ -135,10 +145,14 @@ api.add_resource(api_get_user, '/get_user')               # Get a single user
 api.add_resource(api_login, '/login')                     # Login
 
 api.add_resource(UploadVideo, "/upload_video")
-api.add_resource(GetTranscription, "/get_transcription_by_filename")
+
 api.add_resource(GetAllTranscriptions, "/get_all_transcriptions")
+
+api.add_resource(GetTranscription, "/get_transcription_by_filename")
 api.add_resource(UpdateTranscription, "/update_transcription")
 api.add_resource(DeleteTranscription, "/delete_transcription")
+
+api.add_resource(Summary, "/get_summary")   
 
 if __name__ == '__main__':
     app.run(debug=True)

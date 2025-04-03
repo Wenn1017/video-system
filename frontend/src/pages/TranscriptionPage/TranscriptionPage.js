@@ -12,38 +12,46 @@ const TranscriptionPage = () => {
   
   // Get filename from URL parameters or localStorage
   useEffect(() => {
-    let filename = searchParams.get("filename") || localStorage.getItem("filename");
-  
+    const locationState = window.history.state?.usr || {};
+    let filename = locationState.filename || searchParams.get("filename") || localStorage.getItem("filename");
+    let storedTranscript = locationState.transcription || JSON.parse(localStorage.getItem("transcription"));
+
     if (!filename) {
       console.error("⚠️ Filename is missing!");
       return;
     }
-  
-    console.log("Fetching transcription for filename:", filename);
-  
-    fetch(`http://localhost:5000/get_transcription_by_filename?filename=${encodeURIComponent(filename)}`, {
-      method: "GET",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("token")}`  // Ensure token exists
-      },
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          throw new Error(`Backend error: ${data.error}`);
-        }
-  
-        console.log("Fetched transcript data:", data);
-        setVideoTitle(filename);
-  
-        // Store the transcription text properly
-        const combinedTranscriptions = [{ time: "0:00", text: data.transcription_text || "No transcription available", type: "STT" }];
-        setTranscriptions(combinedTranscriptions);
+    
+    console.log("Retrieved filename:", filename);
+    console.log("Retrieved transcript:", storedTranscript);
+
+    setVideoTitle(filename);
+    
+    if (storedTranscript) {
+      setTranscriptions(storedTranscript); 
+    } else {
+      fetch(`http://localhost:5000/get_transcription_by_filename?filename=${encodeURIComponent(filename)}`, {
+        method: "GET",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`  // Ensure token exists
+        },
       })
-      .catch(error => {
-        console.error("Error fetching transcription:", error.message);
-      });
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            throw new Error(`Backend error: ${data.error}`);
+          }
+    
+          console.log("Fetched transcript data:", data);
+          setVideoTitle(filename);
+    
+          // Store the transcription text properly
+          setTranscriptions(data.transcription || [{ time: "0:00", text: "No transcription available", type: "STT" }]);
+        })
+        .catch(error => {
+          console.error("Error fetching transcription:", error.message);
+        });
+      }
   }, [searchParams]);
   
   // Print Function
@@ -58,8 +66,25 @@ const TranscriptionPage = () => {
     doc.text(videoTitle, 10, 10);
 
     doc.setFont("helvetica", "normal");
+
+    let y = 20; // Initial Y position
+    const pageHeight = doc.internal.pageSize.height; // Page height
+    const marginBottom = 10; // Space at the bottom of the page
+    const lineHeight = 10; // Line spacing
+
     transcript.forEach((entry, index) => {
-      doc.text(`${entry.time} - ${entry.text}`, 10, 20 + index * 10);
+      const text = entry.text || entry.STT || "No transcription available"; // Ensure correct key
+      const formattedText = doc.splitTextToSize(`${entry.time} - ${text}`, 180); // Wrap text within 180 width
+      // Check if text will exceed page height
+      if (y + formattedText.length * lineHeight > pageHeight - marginBottom) {
+        doc.addPage(); // Add new page
+        y = 20; // Reset Y position
+      }
+
+      doc.text(formattedText, 10, y);
+      y += formattedText.length * lineHeight; // Move to next line dynamically
+
+      // doc.text(`${entry.time} - ${entry.STT}`, 10, 20 + index * 10);
     });
 
     doc.save(`${videoTitle.replace(/\s+/g, "_")}.pdf`);
@@ -99,7 +124,7 @@ const TranscriptionPage = () => {
         {transcript.map((entry, index) => (
           <div key={index} className="transcript-entry">
             <span className="transcript-timestamp">{entry.time}</span>
-            <p className="transcript-text">{entry.text}</p>
+            <p className="transcript-text">{entry.STT}</p>
           </div>
         ))}
         </div>
