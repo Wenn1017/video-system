@@ -5,5 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class ApplicationConfig:
-    SECRET_KEY = os.getenv("SECRET_KEY")  # Load secret key
+    JSONIFY_MIMETYPE = 'application/json'
+    SECRET_KEY= os.environ['SECRET_KEY']  # Load secret key
     MONGO_URI = os.getenv("MONGO_URI")  # Load MongoDB URI
+    JWT_SECRET_KEY = 'sdjsdafa'

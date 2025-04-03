@@ -43,6 +43,12 @@ function MainPage() {
       return;
     }
 
+    const token = localStorage.getItem("token"); // ✅ Get the token from localStorage
+    if (!token) {
+      alert("User not authenticated. Please log in.");
+      return;
+    }
+    
     const formData = new FormData();
     formData.append("file", selectedFile);
 
@@ -50,14 +56,27 @@ function MainPage() {
     try {
       const response = await axios.post("http://127.0.0.1:5000/upload_video", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        "Authorization": token
       });
 
-      console.log("Transcription:", response.data);
+      console.log("Transcription:", response.data.combined_transcription);
+
+      if (!response.data.combined_transcription) {
+        alert("Error: No transcription generated.");
+        return;
+      }
+
+      const filename = response.data.combined_transcription.filename;
+      const transcription = response.data.combined_transcription.transcription;
+
+      localStorage.setItem("filename", filename);
+      localStorage.setItem("transcription", JSON.stringify(transcription));
+
       // setTranscription(response.data.combined_transcription);
       alert("File uploaded and processed successfully!");
 
       // Navigate to transcription page with transcription data
-      navigate("/transcription", { state: { transcription: response.data.combined_transcription } });
+      navigate("/transcription", { state: { filename, transcription } });
 
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -87,7 +106,7 @@ function MainPage() {
             <p>Welcome to Video Content Analysis and Note Generation System</p>
           </div>
 
-          <div className="main-upload-section">
+          {/* <div className="main-upload-section">
             <label className="main-dropdown">
               Language:
               <select>
@@ -96,7 +115,7 @@ function MainPage() {
                 <option>French</option>
               </select>
             </label>
-          </div>
+          </div> */}
 
           {/* Drag and Drop Box */}
           <div

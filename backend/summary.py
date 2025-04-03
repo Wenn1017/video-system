@@ -38,8 +38,7 @@ def extract_keywords_tfidf(text, num_keywords=5):
     sorted_indices = vectors.toarray().argsort()[0][-num_keywords:][::-1]
     return [feature_names[i] for i in sorted_indices]
 
-@app.route('/get_summary', methods=['GET'])
-def get_summary():
+def generate_summary_and_keywords(text):
     sample_transcription = """
     Artificial Intelligence (AI) has become one of the most transformative technologies in the modern era. 
     It has applications in healthcare, finance, education, and even entertainment. Machine learning, 
@@ -50,17 +49,18 @@ def get_summary():
     """
     
     # Generate summaries
-    summary_hf = summarize_text_huggingface(sample_transcription)
-    summary_sumy = summarize_text_sumy(sample_transcription)
+    summary_hf = summarize_text_huggingface(text)
+    summary_sumy = summarize_text_sumy(text)
     
     # Extract keywords
-    keywords_tfidf = extract_keywords_tfidf(sample_transcription)
+    keywords_tfidf = extract_keywords_tfidf(text)
 
-    return jsonify({
-        "summary_huggingface": summary_hf,
-        "summary_sumy": summary_sumy,
-        "keywords_tfidf": keywords_tfidf
-    })
+    return {
+            "summary_huggingface": summary_hf,
+            "summary_sumy": summary_sumy,
+            "keywords_tfidf": keywords_tfidf
+        }
+
 
 if __name__ == "__main__":
     app.run(debug=True)
