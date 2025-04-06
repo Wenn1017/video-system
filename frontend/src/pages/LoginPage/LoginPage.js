@@ -1,9 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Formik, Form } from "formik";
-import { useContext } from "react";
 import * as Yup from "yup";
 import { MDBContainer, MDBCard, MDBInput, MDBBtn } from "mdb-react-ui-kit";
-// import { AlertContext } from "../../context/AlertContext";
 import "./LoginPage.css";
 import { Link } from "react-router-dom";
 
@@ -24,10 +22,6 @@ function LoginPage() {
         body: JSON.stringify(user),
       });
       const data = await response.json();
-      const [type, text] = Object.entries(data)[0];
-      // setAlertMessage(text);
-      // setAlertVisibility(true);
-      // setType(type);
       
       if (data.token) {
         localStorage.setItem("token", data.token);

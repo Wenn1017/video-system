@@ -4,7 +4,7 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from config import ApplicationConfig
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-import user  # Your module for user login/signup
+import user
 import transcription
 import summary
 from translation import translate_text
@@ -126,14 +126,19 @@ class DeleteTranscription(Resource):
 
 # _________________________ NLP API ___________________________ 
 class Summary(Resource):
+    @cross_origin(origin='http://localhost:3000')
     def post(self):
         data = request.json
-        transcription = data.get("transcription", "")
 
-        if not transcription:
-            return jsonify({"error": "No transcription provided"}), 400
+        # Extract and combine 'STT' fields into one passage
+        transcript_list = data.get("transcript", [])
+        if not transcript_list:
+            return jsonify({"error": "No transcript data provided"}), 400
 
-        result = summary.generate_summary_and_keywords(transcription)
+        full_text = " ".join([item.get("STT", "") for item in transcript_list])
+        print(full_text)
+
+        result = summary.generate_summary_and_keywords(full_text)
         return jsonify(result)
 
 # _________________________ TRANSLATION API ___________________________

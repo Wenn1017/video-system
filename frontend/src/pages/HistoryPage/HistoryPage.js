@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
+import { FiLogOut } from "react-icons/fi";
 import "./HistoryPage.css";
 
 const HistoryPage = () => {
@@ -99,6 +100,13 @@ const HistoryPage = () => {
     doc.save(`${fileTitle.replace(/\s+/g, "_")}.pdf`);
   };
 
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("filename");
+    localStorage.removeItem("transcription");
+    navigate("/");
+  };
+
   return (
     <div className="history-page">
       {/* Sidebar */}
@@ -108,9 +116,21 @@ const HistoryPage = () => {
           <li onClick={() => navigate("/main")} style={{ cursor: "pointer" }}>Upload</li>
           <li onClick={() => navigate("/transcription")} style={{ cursor: "pointer" }}>Transcription</li>
           <li onClick={() => navigate("/summary")} style={{ cursor: "pointer" }}>Note</li>
-          <li onClick={() => navigate("/translation")} style={{ cursor: "pointer" }}>Translation</li>
+          <li onClick={() => navigate("/translation")} style={{ cursor: "pointer" }}>Translate</li>
           <li className="history-active">History</li>
         </ul>
+        <li
+          onClick={handleSignOut}
+          style={{
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+          }}
+        >
+          <FiLogOut className="signout-icon" />
+          <span>Sign Out</span>
+        </li>
       </div>
 
       {/* Main Content */}

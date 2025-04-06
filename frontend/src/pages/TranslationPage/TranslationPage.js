@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiLogOut } from "react-icons/fi";
+
 import "./TranslationPage.css"; // Import the CSS file
 
 const TranslationPage = () => {
@@ -35,6 +37,13 @@ const TranslationPage = () => {
 
   const navigate = useNavigate();
 
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("filename");
+    localStorage.removeItem("transcription");
+    navigate("/");
+  };
+
   return (
     <div className="translation-page">
       <div className="translation-container">
@@ -48,6 +57,18 @@ const TranslationPage = () => {
             <li className="translation-active">Translate</li>
             <li onClick={() => navigate("/history")} style={{ cursor: "pointer" }}>History</li>
           </ul>
+          <li
+            onClick={handleSignOut}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
+            }}
+          >
+            <FiLogOut className="signout-icon" />
+            <span>Sign Out</span>
+          </li>
         </div>
 
         <div className="translation-main-content">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
+import { FiLogOut } from "react-icons/fi";
 import "./SummaryPage.css";
 
 const SummaryPage = () => {
@@ -70,6 +71,13 @@ const SummaryPage = () => {
     content: () => printRef.current,
   });
 
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("filename");
+    localStorage.removeItem("transcription");
+    navigate("/");
+  };
+
   return (
     <div className="summary-page">
       <div className="summary-container">
@@ -82,6 +90,18 @@ const SummaryPage = () => {
             <li onClick={() => navigate("/translation")} style={{ cursor: "pointer" }}>Translate</li>
             <li onClick={() => navigate("/history")} style={{ cursor: "pointer" }}>History</li>
           </ul>
+          <li
+            onClick={handleSignOut}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
+            }}
+          >
+            <FiLogOut className="signout-icon" />
+            <span>Sign Out</span>
+          </li>
         </div>
         
         <div className="summary-main-content">
