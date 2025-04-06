@@ -117,3 +117,22 @@
   cursor: pointer;
   border-radius: 5px;
 }
+
+.signout-button {
+  margin-top: auto;
+  padding: 10px 15px;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.signout-icon {
+  font-size: 18px;
+}

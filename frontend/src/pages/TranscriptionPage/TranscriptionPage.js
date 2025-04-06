@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { jsPDF } from "jspdf";
+import { FiLogOut } from "react-icons/fi";
+
 import "./TranscriptionPage.css"; // Import CSS file
 
 const TranscriptionPage = () => {
@@ -9,6 +11,7 @@ const TranscriptionPage = () => {
   const printRef = useRef(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState("STT");
   
   // Get filename from URL parameters or localStorage
   useEffect(() => {
@@ -83,19 +86,17 @@ const TranscriptionPage = () => {
 
       doc.text(formattedText, 10, y);
       y += formattedText.length * lineHeight; // Move to next line dynamically
-
-      // doc.text(`${entry.time} - ${entry.STT}`, 10, 20 + index * 10);
     });
 
     doc.save(`${videoTitle.replace(/\s+/g, "_")}.pdf`);
   };
 
-  // // Sample transcript data (Replace this with actual data)
-  // const transcript = [
-  //   { time: "0:00", text: "Thank you. I'm honored to be with you today..." },
-  //   { time: "1:16", text: "Except that when I popped out, they decided at the last minute..." },
-  //   { time: "2:26", text: "So I decided to drop out and trust that it would all work out..." },
-  // ];
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("filename");
+    localStorage.removeItem("transcription");
+    navigate("/");
+  };
 
   return (
     <div className="transcription-page">
@@ -110,6 +111,18 @@ const TranscriptionPage = () => {
             <li onClick={() => navigate("/translation")} style={{ cursor: "pointer" }}>Translate</li>
             <li onClick={() => navigate("/history")} style={{ cursor: "pointer" }}>History</li>
           </ul>
+          <li
+            onClick={handleSignOut}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
+            }}
+          >
+            <FiLogOut className="signout-icon" />
+            <span>Sign Out</span>
+          </li>
         </div>
         
         {/* Main Content */}
@@ -119,15 +132,34 @@ const TranscriptionPage = () => {
             <button onClick={handlePrint} className="transcript-print-btn">Print</button>
             <button onClick={handleDownloadPDF} className="transcript-pdf-btn">Download PDF</button>
           </div>
-
-        <div className="transcript-content" ref={printRef}>
-        {transcript.map((entry, index) => (
-          <div key={index} className="transcript-entry">
-            <span className="transcript-timestamp">{entry.time}</span>
-            <p className="transcript-text">{entry.STT}</p>
+        
+          <div className="transcript-tabs">
+            <button 
+              className={activeTab === "STT" ? "tab active" : "tab"}
+              onClick={() => setActiveTab("STT")}
+            >
+              STT Transcript
+            </button>
+            <button 
+              className={activeTab === "OCR" ? "tab active" : "tab"}
+              onClick={() => setActiveTab("OCR")}
+            >
+              OCR Transcript
+            </button>
           </div>
-        ))}
-        </div>
+          
+          <div className="transcript-content" ref={printRef}>
+            {transcript.map((entry, index) => (
+              <div key={index} className="transcript-entry">
+                <div className="transcript-timestamp">
+                  {entry.time}
+                </div>
+                <div className="transcript-text">
+                  {activeTab === "STT" ? entry.STT || "No STT available" : entry.OCR || "No OCR available"}
+                </div>
+              </div>
+            ))}
+          </div>
       </div>
     </div>
   </div>

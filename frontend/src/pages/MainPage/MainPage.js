@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiLogOut } from "react-icons/fi";
+
 import axios from "axios";
 import "./MainPage.css";
 
@@ -85,6 +87,13 @@ function MainPage() {
     setLoading(false);
   };
 
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("filename");
+    localStorage.removeItem("transcription");
+    navigate("/");
+  };
+
   return (
     <div className="main-url-page">
       <div className="main-container">
@@ -98,6 +107,18 @@ function MainPage() {
             <li onClick={() => navigate("/translation")} style={{ cursor: "pointer" }}>Translate</li>
             <li onClick={() => navigate("/history")} style={{ cursor: "pointer" }}>History</li>
           </ul>
+          <li
+            onClick={handleSignOut}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
+            }}
+          >
+            <FiLogOut className="signout-icon" />
+            <span>Sign Out</span>
+          </li>
         </div>
 
         {/* Main Content */}

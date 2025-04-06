@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -36,11 +36,6 @@ function SignUpPage() {
         },
         body: JSON.stringify({ username, email, password }),
       });
-      const message = await response.json();
-      const [type, text] = Object.entries(message)[0];
-      // setAlertMessage(text);
-      // setAlertVisibility(true);
-      // setType(type);
 
       if (response.status === 200) {
         navigate("/mainURL");

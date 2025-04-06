@@ -22,7 +22,7 @@ def summarize_text_huggingface(text):
     if len(text.split()) > 400:  
         text = " ".join(text.split()[:400])  # Limit input size for summarization
     
-    summary = summarizer_hf(text, max_length=150, min_length=50, do_sample=False)
+    summary = summarizer_hf(text, max_length=250, min_length=50, do_sample=False)
     return summary[0]["summary_text"]
 
 def summarize_text_sumy(text, sentence_count=3):
@@ -39,15 +39,7 @@ def extract_keywords_tfidf(text, num_keywords=5):
     return [feature_names[i] for i in sorted_indices]
 
 def generate_summary_and_keywords(text):
-    sample_transcription = """
-    Artificial Intelligence (AI) has become one of the most transformative technologies in the modern era. 
-    It has applications in healthcare, finance, education, and even entertainment. Machine learning, 
-    a subset of AI, enables systems to learn from data and make predictions. Companies like Google, 
-    Amazon, and Microsoft are heavily investing in AI research. While AI offers numerous benefits, 
-    it also raises concerns about job automation and ethical considerations. Governments and organizations 
-    are actively working on policies to ensure AI development aligns with human values and ethics.
-    """
-    
+
     # Generate summaries
     summary_hf = summarize_text_huggingface(text)
     summary_sumy = summarize_text_sumy(text)
@@ -60,7 +52,6 @@ def generate_summary_and_keywords(text):
             "summary_sumy": summary_sumy,
             "keywords_tfidf": keywords_tfidf
         }
-
 
 if __name__ == "__main__":
     app.run(debug=True)
