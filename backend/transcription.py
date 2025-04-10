@@ -2,6 +2,8 @@ from flask import request, jsonify
 from flask_jwt_extended import decode_token
 import database
 import datetime
+import summary
+from bson.objectid import ObjectId
 
 import cv2
 import os
@@ -26,7 +28,7 @@ def detect_language(text):
         return "unknown"  # If detection fails
 
 ### STEP 1: Extract Frames from Video ###
-def extract_frames(video_path, interval=3):
+def extract_frames(video_path, interval=50):
     cap = cv2.VideoCapture(video_path)
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     frame_interval = fps * interval  # Capture a frame every 'interval' seconds
@@ -247,6 +249,7 @@ def process_video(file):
     final_transcription = match_frames_with_text(frame_data, stt_text)
 
     print("Saving final summary to text file...")
+    
     response = add_transcription(file.filename, final_transcription)
 
     return {"filename": file.filename, "transcription": final_transcription, "db_status": response}
@@ -259,12 +262,18 @@ def add_transcription(filename, transcription_text):
         if db is None:
             raise Exception("Database connection failed!")
 
+        full_text = " ".join([item.get("STT", "") for item in transcription_text])
+        summaries = summary.generate_summary_and_keywords(full_text)
         transcriptions = db["transcriptions"]
         transcription_data = {
 
             "filename": filename,
             "transcription_text": transcription_text,
-            "created_at": datetime.datetime.utcnow()  # Add timestamp
+            "summary": {
+                "huggingface": summaries.get("summary_huggingface", ""),
+                "sumy": summaries.get("summary_sumy", "")
+            },
+            "created_at": datetime.datetime.utcnow()
         }
 
         transcriptions.insert_one(transcription_data)
@@ -324,9 +333,18 @@ def update_transcription(filename, new_transcription_text):
     return {"success": "Transcription updated successfully"} if result.modified_count > 0 else {"error": "Update failed!"}
 
 # Delete transcription by filename
-def delete_transcription(filename):
+def delete_transcription(id):
     """Delete a transcription from MongoDB."""
     db = database.database_connection()
     transcriptions = db["transcriptions"]
-    result = transcriptions.delete_one({"filename": filename})
-    return {"success": f"Transcription {filename} deleted"} if result.deleted_count > 0 else {"error": "Deletion failed!"}
+    try:
+        object_id = ObjectId(id)
+    except Exception:
+        return {"error": "Invalid ID format!"}
+    result = transcriptions.delete_one({"_id": object_id})
+    print("Delete result:", result.deleted_count)
+
+    if result.deleted_count > 0:
+        return {"success": f"Transcription {id} deleted"}
+    else:
+        return {"error": "Deletion failed!"}

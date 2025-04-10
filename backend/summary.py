@@ -11,14 +11,14 @@ app = Flask(__name__)
 CORS(app)  # Allow frontend requests
 
 # Download necessary NLTK resources
-nltk.download('stopwords')
-nltk.download('punkt')
+# nltk.download('stopwords')
+# nltk.download('punkt')
+# nltk.download('punkt_tab')
 
 # Initialize Hugging Face summarizer
 summarizer_hf = pipeline("summarization", model="facebook/bart-large-cnn")
 
 def summarize_text_huggingface(text):
-    max_input = 1024  
     if len(text.split()) > 400:  
         text = " ".join(text.split()[:400])  # Limit input size for summarization
     
@@ -43,14 +43,10 @@ def generate_summary_and_keywords(text):
     # Generate summaries
     summary_hf = summarize_text_huggingface(text)
     summary_sumy = summarize_text_sumy(text)
-    
-    # Extract keywords
-    keywords_tfidf = extract_keywords_tfidf(text)
 
     return {
             "summary_huggingface": summary_hf,
             "summary_sumy": summary_sumy,
-            "keywords_tfidf": keywords_tfidf
         }
 
 if __name__ == "__main__":

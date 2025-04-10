@@ -12,7 +12,6 @@ const schema = Yup.object().shape({
 
 function LoginPage() {
   const navigate = useNavigate();
-  // const { setAlertVisibility, setAlertMessage, setType } = useContext(AlertContext);
 
   const loginUser = async (user) => {
     try {
@@ -21,16 +20,19 @@ function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
       });
+  
       const data = await response.json();
-      
+  
       if (data.token) {
         localStorage.setItem("token", data.token);
         navigate("/main");
       } else {
-        navigate("/");
+        alert(data.error || "Login failed. Please try again."); 
+        navigate("/"); 
       }
     } catch (error) {
       console.error("Login Error:", error);
+      alert("An unexpected error occurred.");
     }
   };
 

@@ -65,31 +65,77 @@ const TranscriptionPage = () => {
   // Download as PDF
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
+    
+    // Title styling
     doc.setFont("helvetica", "bold");
-    doc.text(videoTitle, 10, 10);
-
+    const titleWidth = doc.getTextWidth(videoTitle); // Calculate the title width
+    const pageWidth = doc.internal.pageSize.width; // Get page width
+    const margin = 10; // Define margin
+    const titleX = (pageWidth - titleWidth) / 2; // Center the title horizontally
+    
+    // Add title to the PDF
+    doc.text(videoTitle, titleX, 10);
+  
+    // Normal text styling
     doc.setFont("helvetica", "normal");
-
-    let y = 20; // Initial Y position
+    
+    let y = 20; // Initial Y position for the transcript
     const pageHeight = doc.internal.pageSize.height; // Page height
     const marginBottom = 10; // Space at the bottom of the page
     const lineHeight = 10; // Line spacing
-
+    const textWidth = pageWidth - 2 * margin; // Text width with margins
+  
+    // Add STT text to PDF
+    doc.text("STT Transcript:", margin, y);
+    y += lineHeight; // Add line height for spacing
+    
+    // Add STT content
     transcript.forEach((entry, index) => {
-      const text = entry.text || entry.STT || "No transcription available"; // Ensure correct key
-      const formattedText = doc.splitTextToSize(`${entry.time} - ${text}`, 180); // Wrap text within 180 width
+      const text = entry.STT || "No STT available"; // Ensure correct key
+      const formattedText = doc.splitTextToSize(`${entry.time} - ${text}`, textWidth); // Wrap text within margins
+      
       // Check if text will exceed page height
-      if (y + formattedText.length * lineHeight > pageHeight - marginBottom) {
-        doc.addPage(); // Add new page
-        y = 20; // Reset Y position
-      }
-
-      doc.text(formattedText, 10, y);
-      y += formattedText.length * lineHeight; // Move to next line dynamically
+      formattedText.forEach((line) => {
+        if (y + lineHeight > pageHeight - marginBottom) {
+          doc.addPage(); // Add new page if text exceeds the page height
+          y = 20; // Reset Y position to top of new page
+        }
+        doc.text(line, margin, y); // Ensure text stays within margin
+        y += lineHeight; // Move to next line dynamically
+      });
     });
-
+  
+    // Draw a line to separate STT and OCR sections
+    const lineY = y + 5; // Position for the line after STT section
+    doc.setDrawColor(0, 0, 0); // Set color for the line (black)
+    doc.setLineWidth(0.5); // Set line width
+    doc.line(margin, lineY, pageWidth - margin, lineY); // Draw the line (startX, startY, endX, endY)
+  
+    y = lineY + 10; // Adjust y position after the line and before OCR
+  
+    // Add OCR text to PDF if available
+    doc.text("OCR Transcript:", margin, y);
+    y += lineHeight; // Add line height for spacing
+  
+    // Add OCR content
+    transcript.forEach((entry, index) => {
+      const text = entry.OCR || "No OCR available"; // Ensure correct key
+      const formattedText = doc.splitTextToSize(`${entry.time} - ${text}`, textWidth); // Wrap text within margins
+      
+      // Check if text will exceed page height
+      formattedText.forEach((line) => {
+        if (y + lineHeight > pageHeight - marginBottom) {
+          doc.addPage(); // Add new page if text exceeds the page height
+          y = 20; // Reset Y position to top of new page
+        }
+        doc.text(line, margin, y); // Ensure OCR text stays within margin
+        y += lineHeight; // Move to next line dynamically
+      });
+    });
+  
     doc.save(`${videoTitle.replace(/\s+/g, "_")}.pdf`);
   };
+  
 
   const handleSignOut = () => {
     localStorage.removeItem("token");
