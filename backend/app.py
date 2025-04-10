@@ -16,7 +16,8 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
 api = Api(app)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+
 
 # # _________________________ USER AUTHENTICATION API ___________________________
 
@@ -115,14 +116,16 @@ class UpdateTranscription(Resource):
         return jsonify(transcription.update_transcription(filename, new_text))
 
 class DeleteTranscription(Resource):
-    @jwt_required()
     def delete(self):
-        """Delete a transcription from MongoDB."""
+        """Delete a transcription from MongoDB using the ID from the request body."""
         data = request.get_json()
-        filename = data.get("filename")
-        if not filename:
-            return jsonify({"error": "Filename is required"}), 400
-        return jsonify(transcription.delete_transcription(filename))
+        _id = data.get('id')
+
+        if not _id:
+            return jsonify({"error": "ID is required"}), 400
+
+        # Now perform the deletion
+        return jsonify(transcription.delete_transcription(_id))
 
 # _________________________ NLP API ___________________________ 
 class Summary(Resource):
@@ -152,10 +155,10 @@ api.add_resource(api_login, '/login')                     # Login
 api.add_resource(UploadVideo, "/upload_video")
 
 api.add_resource(GetAllTranscriptions, "/get_all_transcriptions")
+api.add_resource(DeleteTranscription, "/delete_transcription")
 
 api.add_resource(GetTranscription, "/get_transcription_by_filename")
 api.add_resource(UpdateTranscription, "/update_transcription")
-api.add_resource(DeleteTranscription, "/delete_transcription")
 
 api.add_resource(Summary, "/get_summary")   
 

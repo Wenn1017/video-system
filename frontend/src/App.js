@@ -9,7 +9,6 @@ import TranscriptPage from "./pages/TranscriptionPage/TranscriptionPage";
 import TranslationPage from "./pages/TranslationPage/TranslationPage";
 import SummaryPage from "./pages/SummaryPage/SummaryPage";
 import HistoryPage from "./pages/HistoryPage/HistoryPage";
-import ViewPage from "./pages/ViewPage/ViewPage";
 
 
 const App = () => {
@@ -24,7 +23,6 @@ const App = () => {
           <Route path="/summary" element={<SummaryPage/>}/>
           <Route path="/translation" element={<TranslationPage/>}/>
           <Route path="/history" element={<HistoryPage/>}/>
-          <Route path="/view" element={<ViewPage/>}/>
           
         </Routes>
       </div>

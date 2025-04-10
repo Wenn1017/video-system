@@ -8,11 +8,22 @@ const SummaryPage = () => {
   const printRef = useRef(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [summary, setSummary] = useState("");
-  const [keywords, setKeywords] = useState([]);
+  const [abstractiveSummary, setAbstractiveSummary] = useState("");
+  const [extractiveSummary, setExtractiveSummary] = useState("");
   const [loading, setLoading] = useState(true);
   const [videoTitle, setVideoTitle] = useState("");
   const [transcript, setTranscript] = useState([]);
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
+
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("filename");
+    localStorage.removeItem("transcription");
+    navigate("/");
+  };
 
   useEffect(() => {
     const locationState = window.history.state?.usr || {};
@@ -25,58 +36,60 @@ const SummaryPage = () => {
     }
 
     setVideoTitle(filename);
-    
+
+    const summaryCacheKey = `summary_${filename}`;
+    const cachedAbstractive = localStorage.getItem(`${summaryCacheKey}_abstractive`);
+    const cachedExtractive = localStorage.getItem(`${summaryCacheKey}_extractive`);
+
+    if (cachedAbstractive && cachedExtractive) {
+      setAbstractiveSummary(cachedAbstractive);
+      setExtractiveSummary(cachedExtractive);
+      setLoading(false);
+      return;
+    }
+
+    const fetchSummary = (transcriptData) => {
+      setLoading(true);
+      fetch("http://127.0.0.1:5000/get_summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transcript: transcriptData })
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const abstractive = data.summary_huggingface || "No abstractive summary available.";
+          const extractive = data.summary_sumy || "No extractive summary available.";
+          setAbstractiveSummary(abstractive);
+          setExtractiveSummary(extractive);
+          localStorage.setItem(`${summaryCacheKey}_abstractive`, abstractive);
+          localStorage.setItem(`${summaryCacheKey}_extractive`, extractive);
+        })
+        .catch((err) => console.error("Error fetching summaries:", err))
+        .finally(() => setLoading(false));
+    };
+
     if (storedTranscript) {
       setTranscript(storedTranscript);
       fetchSummary(storedTranscript);
     } else {
       fetch(`http://localhost:5000/get_transcription_by_filename?filename=${encodeURIComponent(filename)}`, {
         method: "GET",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         },
       })
-        .then(response => response.json())
-        .then(data => {
-          if (data.error) {
-            throw new Error(`Backend error: ${data.error}`);
-          }
-          setTranscript(data.transcription || [{ time: "0:00", text: "No transcription available", type: "STT" }]);
-          fetchSummary(data.transcription);
+        .then((res) => res.json())
+        .then((data) => {
+          const trans = data.transcription || [{ time: "0:00", text: "No transcription available", type: "STT" }];
+          setTranscript(trans);
+          fetchSummary(trans);
         })
-        .catch(error => {
-          console.error("Error fetching transcription:", error.message);
+        .catch((err) => {
+          console.error("Error fetching transcription:", err.message);
         });
     }
   }, [searchParams]);
-
-  const fetchSummary = (transcriptData) => {
-    setLoading(true);
-    fetch("http://127.0.0.1:5000/get_summary", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ transcript: transcriptData })
-    })
-      .then(response => response.json())
-      .then(data => {
-        setSummary(data.summary_huggingface);
-        setKeywords(data.keywords_tfidf);
-      })
-      .catch(error => console.error("Error fetching summary:", error))
-      .finally(() => setLoading(false));
-  };
-
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-  });
-
-  const handleSignOut = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("filename");
-    localStorage.removeItem("transcription");
-    navigate("/");
-  };
 
   return (
     <div className="summary-page">
@@ -103,7 +116,7 @@ const SummaryPage = () => {
             <span>Sign Out</span>
           </li>
         </div>
-        
+
         <div className="summary-main-content">
           <div className="summary-header">
             <h1>{videoTitle || "No Video Selected"}</h1>
@@ -111,17 +124,11 @@ const SummaryPage = () => {
           </div>
 
           <div className="summary-content" ref={printRef}>
-            <h2>Summary</h2>
-            {loading ? <p>Loading summary...</p> : <p className="summary-text">{summary}</p>}
+            <h2>Abstractive Summary (Hugging Face)</h2>
+            {loading ? <p>Loading abstractive summary...</p> : <p className="summary-text">{abstractiveSummary}</p>}
 
-            <h2>Keywords</h2>
-            {loading ? <p>Loading keywords...</p> : (
-              <ul>
-                {keywords.map((keyword, index) => (
-                  <li key={index}>{keyword}</li>
-                ))}
-              </ul>
-            )}
+            <h2>Extractive Summary (Sumy)</h2>
+            {loading ? <p>Loading extractive summary...</p> : <p className="summary-text">{extractiveSummary}</p>}
           </div>
         </div>
       </div>

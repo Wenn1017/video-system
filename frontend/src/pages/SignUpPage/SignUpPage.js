@@ -37,13 +37,23 @@ function SignUpPage() {
         body: JSON.stringify({ username, email, password }),
       });
 
+      const data = await response.json();
+
       if (response.status === 200) {
-        navigate("/mainURL");
+      if (data.success) {
+        navigate("/main");
+      } else {
+        alert(data.error || "Something went wrong");
+        navigate("/signup");
       }
-    } catch (error) {
-      console.error(error);
+    } else {
+      alert("Server returned an error status");
     }
-  };
+  } catch (error) {
+    console.error("Fetch error:", error);
+    alert("An unexpected error occurred");
+  }
+};
 
   return (
     <MDBContainer fluid className="signup-container">
