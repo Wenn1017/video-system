@@ -129,9 +129,8 @@ def login_user(user_login, bcrypt):
                 "email": user_record["email"],
                 "username": user_record["username"],
             }
-            access_token = create_access_token(identity=identity)
 
-            return {"success": f"Welcome back, {user_record['username']}!", "token": access_token}
+            return {"success": f"Welcome back, {user_record['username']}!", "token": identity}
         else:
             return {"error": "Login failed! Incorrect email or password."}
 

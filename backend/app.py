@@ -3,12 +3,14 @@ from flask_restful import Resource, Api
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from config import ApplicationConfig
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager
 import user
 import transcription
 import summary
 from translation import translate_text
 from flask_cors import cross_origin
+from cryptography.fernet import Fernet
+import jwt as pyjwt
 
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
@@ -18,24 +20,8 @@ jwt = JWTManager(app)
 api = Api(app)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
-
-# # _________________________ USER AUTHENTICATION API ___________________________
-
-# class UserSignup(Resource):
-#     def post(self):
-#         data = request.get_json()
-#         return jsonify(user.signup(data, bcrypt))
-
-# class UserLogin(Resource):
-#     def post(self):
-#         data = request.get_json()
-#         return jsonify(user.login(data, bcrypt))
-
-# class GetUserDetails(Resource):
-#     @jwt_required()
-#     def get(self):
-#         current_user = get_jwt_identity()
-#         return jsonify({"email": current_user})
+# Generate a key 
+CRYPT = 'djhdsa'
 
 # _________________________ USER LOG IN & SIGN UP API ___________________________
 class api_user(Resource):
@@ -45,25 +31,21 @@ class api_user(Resource):
         return jsonify(user.add_user(user_data, bcrypt))
     
     # Retrieve all users
-    @jwt_required()
     def get(self):
         return jsonify(user.get_all_users())
     
     # Update user details
-    @jwt_required()
     def put(self):
         user_data = request.get_json()
         return jsonify(user.update_user(user_data))
     
     # Delete a user
-    @jwt_required()
     def delete(self):
         user_data = request.get_json()
         return jsonify(user.delete_user(user_data["email"]))
 
 # Retrieve a single user by email
 class api_get_user(Resource):
-    @jwt_required()
     def post(self):
         user_data = request.get_json()
         return jsonify(user.get_user(user_data))
@@ -72,30 +54,59 @@ class api_get_user(Resource):
 class api_login(Resource):
     def post(self):
         user_data = request.get_json()
-        return jsonify(user.login_user(user_data, bcrypt))
+        response = user.login_user(user_data, bcrypt)
+        token = pyjwt.encode(response['token'], CRYPT, algorithm="HS256")
+        response['token'] = token
+        return jsonify(response)
 
 # _________________________ TRANSCRIPTION API ___________________________
 
 class UploadVideo(Resource):
     def post(self):
         """Upload video and process transcription."""
+        encrypted_token = request.form.get("token") or request.json.get("token")
+        email = ''
+        if encrypted_token:
+            try:
+                decrypted = pyjwt.decode(encrypted_token, CRYPT, algorithms=["HS256"])
+                email = decrypted['email']
+            except pyjwt.ExpiredSignatureError:
+                return {"error": "Token expired"}
+            except pyjwt.InvalidTokenError:
+                return {"error": "Invalid token"}
         
         if "file" in request.files:
             file = request.files["file"]
-            transcript = transcription.process_video(file)
+            transcript = transcription.process_video(file, email)
             return jsonify({'combined_transcription': transcript})
-        
+
         elif "url" in request.form:
             url = request.form["url"]
             transcript = transcription.process_youtube_video(url)
             return jsonify({'combined_transcription': transcript})
+        
         return jsonify({"error": "No video file or URL provided"}), 400
 
 class GetAllTranscriptions(Resource):
-    def get(self):
+    def post(self):
         """Retrieve all stored transcriptions."""
-        transcripts = transcription.get_all_transcriptions()
-        return jsonify(transcripts)
+        data = request.get_json()
+        token = data.get("token")
+        if not token:
+            return jsonify({"error": "No token provided"}), 400
+        
+        try:
+            decrypted = pyjwt.decode(token, CRYPT, algorithms=["HS256"])
+            email = decrypted['email']
+
+            if not email:
+                return jsonify({"error": "Email not found in token"}), 400
+
+            transcriptions = transcription.get_all_transcriptions(email)
+            return jsonify(transcriptions)
+
+        except Exception as e:
+            return jsonify({"error": "Invalid or expired token", "details": str(e)}), 401
     
 class GetTranscription(Resource):
     def get(self):
@@ -105,7 +116,6 @@ class GetTranscription(Resource):
         return jsonify(transcription.get_transcription_by_filename(filename))
 
 class UpdateTranscription(Resource):
-    @jwt_required()
     def put(self):
         """Update an existing transcription."""
         data = request.get_json()

@@ -13,13 +13,15 @@ body {
   
 /* Sidebar */
 .history-sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   width: 250px;
   background-color: #343a40;
   color:white;
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  padding-top: 180px;
   padding-bottom: 100px;
   overflow-y: auto;
 }

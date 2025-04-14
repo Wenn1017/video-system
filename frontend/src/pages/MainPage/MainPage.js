@@ -45,7 +45,7 @@ function MainPage() {
       return;
     }
 
-    const token = localStorage.getItem("token"); // ✅ Get the token from localStorage
+    const token = localStorage.getItem("token");
     if (!token) {
       alert("User not authenticated. Please log in.");
       return;
@@ -53,12 +53,14 @@ function MainPage() {
     
     const formData = new FormData();
     formData.append("file", selectedFile);
-
+    formData.append("token", token);
     setLoading(true);
     try {
       const response = await axios.post("http://127.0.0.1:5000/upload_video", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        "Authorization": token
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${token}`,
+        }
       });
 
       console.log("Transcription:", response.data.combined_transcription);
@@ -127,18 +129,6 @@ function MainPage() {
             <p>Welcome to Video Content Analysis and Note Generation System</p>
           </div>
 
-          {/* <div className="main-upload-section">
-            <label className="main-dropdown">
-              Language:
-              <select>
-                <option>English</option>
-                <option>Spanish</option>
-                <option>French</option>
-              </select>
-            </label>
-          </div> */}
-
-          {/* Drag and Drop Box */}
           <div
             className={`main-drop-box ${dragOver ? "drag-over" : ""}`}
             onDragOver={handleDragOver}
