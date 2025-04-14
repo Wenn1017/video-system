@@ -14,24 +14,33 @@ const HistoryPage = () => {
   const [activeTab, setActiveTab] = useState("STT");
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("User not authenticated. Please log in.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("token", token);
     fetch("http://127.0.0.1:5000/get_all_transcriptions", {  
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({ token })
     })
     .then((response) => {return response.json()})
     .then((data) => {
       const formattedData = data.map((item) => ({
-        id: item._id, // Use MongoDB _id as unique identifier
-        title: item.filename, // Use filename as title
+        id: item._id, 
+        title: item.filename, 
         text: item.transcription_text,
         summary: item.summary,
         date: new Date(item.created_at).toLocaleDateString("en-US", {
           year: "numeric",
           month: "long",
           day: "numeric",
-        }), // Format the date
+        }), 
       }));
       setHistoryData(formattedData);
       console.log(formattedData);
@@ -48,12 +57,12 @@ const HistoryPage = () => {
     if (Array.isArray(transcript)) {
       setSelectedTranscript(transcript);
     } else if (typeof transcript === "string") {
-      setSelectedTranscript([{ time: "", STT: transcript }]); // Wrap text in an array
+      setSelectedTranscript([{ time: "", STT: transcript }]); 
     } else {
       setSelectedTranscript([]);
     }
     if (summary) {
-      setSelectedSummary(summary); // Store the selected summary
+      setSelectedSummary(summary); 
     } else {
       setSelectedSummary(null);
     }
@@ -280,21 +289,6 @@ const HistoryPage = () => {
       <div className="history-content">
         <h1>📌 History</h1>
         <p>View or download your saved transcripts and notes.</p>
-
-        {/* <div className="history-list">
-          {historyData.length === 0 ? (
-            <p>Loading history...</p>
-          ) : (
-            historyData.map((item) => (
-              <div key={item.id} className="history-item">
-                <div className="history-title">{item.title}</div>
-                <div className="history-date">{item.date}</div>
-                <button onClick={() => handleView(item.id)}>👁 View</button>
-                <button onClick={() => handleDownload(item.id)}>📄 Download PDF</button>
-              </div>
-            ))
-          )}
-        </div> */}
 
         <HistoryTable
           historyData={historyData}

@@ -5,6 +5,7 @@ import datetime
 import summary
 from bson.objectid import ObjectId
 
+from skimage.metrics import structural_similarity as ssim
 import cv2
 import os
 from datetime import timedelta
@@ -27,14 +28,26 @@ def detect_language(text):
     except:
         return "unknown"  # If detection fails
 
+def are_frames_similar(frame1, frame2, threshold=0.95):
+    # Convert to grayscale for SSIM
+    gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+    
+    if gray1.shape != gray2.shape:
+        gray2 = cv2.resize(gray2, (gray1.shape[1], gray1.shape[0]))
+    
+    score, _ = ssim(gray1, gray2, full=True)
+    return score >= threshold
+
 ### STEP 1: Extract Frames from Video ###
-def extract_frames(video_path, interval=50):
+def extract_frames(video_path, interval=3, similarity_threshold=0.95):
     cap = cv2.VideoCapture(video_path)
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     frame_interval = fps * interval  # Capture a frame every 'interval' seconds
 
     frame_data = []
     frame_count = 0
+    previous_frame = None
 
     while True:
         ret, frame = cap.read()
@@ -42,8 +55,10 @@ def extract_frames(video_path, interval=50):
             break  # Stop if no more frames are read
 
         if frame_count % frame_interval == 0:
-            timestamp = str(timedelta(seconds=int(frame_count / fps)))  # Convert to timestamp
-            frame_data.append({"timestamp": timestamp, "frame": frame})
+            if previous_frame is None or not are_frames_similar(previous_frame, frame, threshold=similarity_threshold):
+                timestamp = str(timedelta(seconds=int(frame_count / fps)))  # Convert to timestamp
+                frame_data.append({"timestamp": timestamp, "frame": frame})
+                previous_frame = frame
 
         frame_count += 1
 
@@ -218,7 +233,7 @@ def timedelta_to_seconds(timestamp):
 
 
 ### MAIN FUNCTION ###
-def process_video(file):
+def process_video(file, email):
     """Process uploaded video, extract text, and save structured transcription."""
     if not file:
         return {"error": "No file uploaded."}
@@ -250,12 +265,12 @@ def process_video(file):
 
     print("Saving final summary to text file...")
     
-    response = add_transcription(file.filename, final_transcription)
+    response = add_transcription(file.filename, final_transcription, email)
 
     return {"filename": file.filename, "transcription": final_transcription, "db_status": response}
 
 # Save transcription to MongoDB
-def add_transcription(filename, transcription_text):
+def add_transcription(filename, transcription_text, email):
     """Save transcription into MongoDB."""
     try:
         db = database.database_connection()
@@ -268,6 +283,7 @@ def add_transcription(filename, transcription_text):
         transcription_data = {
 
             "filename": filename,
+            "email": email,
             "transcription_text": transcription_text,
             "summary": {
                 "huggingface": summaries.get("summary_huggingface", ""),
@@ -285,7 +301,7 @@ def add_transcription(filename, transcription_text):
 
 
 # Retrieve all transcriptions
-def get_all_transcriptions():
+def get_all_transcriptions(email):
     """Retrieve all transcriptions from MongoDB."""
     db = database.database_connection()
     if db is None:
@@ -297,7 +313,7 @@ def get_all_transcriptions():
     
     result = []
 
-    for doc in transcriptions.find():
+    for doc in transcriptions.find({"email": email}):
         doc["_id"] = str(doc["_id"])
         result.append(doc)
 

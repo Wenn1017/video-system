@@ -24,7 +24,7 @@ const columns = [
 export default function HistoryTable({ historyData, handleView, handleDownload, handleDelete, loading }) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
+  
   const handleChangePage = (event, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
