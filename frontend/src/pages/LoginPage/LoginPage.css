@@ -10,7 +10,7 @@ body {
 .login-container {
   justify-content: center;
   display: flex;
-  height: 100vh;
+  height: 93vh;
   padding: 20px; /* Prevents elements from sticking to edges*/
 }
 
@@ -133,20 +133,9 @@ body {
 }
 
 /* Links */
-.forgot-links {
-  text-align: right;
-  margin-top: 30px;
-}
-
-.forgot-password {
-  font-size: 17px;
-  color: #6c757d;
-  text-decoration: none;
-}
-
 .new-account {
   text-align: right;
-  margin-top: 20px;
+  margin-top: 30px;
   font-size: 17px;
 }
 

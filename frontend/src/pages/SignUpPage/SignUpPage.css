@@ -10,14 +10,14 @@ body {
 .signup-container {
   justify-content: center;
   display: flex;
-  height: 92vh;
+  height: 93vh;
   padding: 20px; /* Prevents elements from sticking to edges*/
 }
 
 /* Left side - Image */
 .left-signup {
   flex: 1;
-  background: url('https://tinyurl.com/2n4dvhty') no-repeat center center/cover;
+  background: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp') no-repeat center center/cover;
   display: none; /*Hide on small screens */
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;

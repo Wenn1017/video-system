@@ -79,11 +79,13 @@ const TranslationPage = () => {
                 <select value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)}>
                   <option value="auto">Detect</option>
                   <option value="en">English</option>
+                  <option value="ms">Malay</option>
                   <option value="fr">French</option>
                   <option value="es">Spanish</option>
                   <option value="de">German</option>
                   <option value="zh-CN">Chinese</option>
                   <option value="ja">Japanese</option>
+                  
                 </select>
               </div>
 
@@ -92,10 +94,12 @@ const TranslationPage = () => {
                 <select value={translatedLanguage} onChange={(e) => setTranslatedLanguage(e.target.value)}>
                   <option value="fr">French</option>
                   <option value="en">English</option>
+                  <option value="ms">Malay</option>
                   <option value="es">Spanish</option>
                   <option value="de">German</option>
                   <option value="zh-CN">Chinese</option>
                   <option value="ja">Japanese</option>
+                  
                 </select>
               </div>
             </div>
