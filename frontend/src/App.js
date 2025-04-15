@@ -3,6 +3,10 @@ import { Routes, Route } from "react-router-dom";
 
 import LoginPage from "./pages/LoginPage/LoginPage";
 import SignUpPage from "./pages/SignUpPage/SignUpPage"; 
+<<<<<<< HEAD
+=======
+// import ForgotPasswordPage from "./pages/ForgotPasswordPage/ForgotPasswordPage";
+>>>>>>> 2fb5340052fcd276b9598069452a61be6d86f7c1
 import MainPage from "./pages/MainPage/MainPage";
 import TranscriptPage from "./pages/TranscriptionPage/TranscriptionPage";
 import TranslationPage from "./pages/TranslationPage/TranslationPage";
@@ -22,6 +26,10 @@ const App = () => {
           <Route path="/summary" element={<SummaryPage/>}/>
           <Route path="/translation" element={<TranslationPage/>}/>
           <Route path="/history" element={<HistoryPage/>}/>
+<<<<<<< HEAD
+=======
+          
+>>>>>>> 2fb5340052fcd276b9598069452a61be6d86f7c1
         </Routes>
       </div>
     </>

@@ -79,13 +79,19 @@ const TranslationPage = () => {
                 <select value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)}>
                   <option value="auto">Detect</option>
                   <option value="en">English</option>
+<<<<<<< HEAD
                   <option value="ms">Malay</option>
+=======
+>>>>>>> 2fb5340052fcd276b9598069452a61be6d86f7c1
                   <option value="fr">French</option>
                   <option value="es">Spanish</option>
                   <option value="de">German</option>
                   <option value="zh-CN">Chinese</option>
                   <option value="ja">Japanese</option>
+<<<<<<< HEAD
                   
+=======
+>>>>>>> 2fb5340052fcd276b9598069452a61be6d86f7c1
                 </select>
               </div>
 
@@ -94,12 +100,18 @@ const TranslationPage = () => {
                 <select value={translatedLanguage} onChange={(e) => setTranslatedLanguage(e.target.value)}>
                   <option value="fr">French</option>
                   <option value="en">English</option>
+<<<<<<< HEAD
                   <option value="ms">Malay</option>
+=======
+>>>>>>> 2fb5340052fcd276b9598069452a61be6d86f7c1
                   <option value="es">Spanish</option>
                   <option value="de">German</option>
                   <option value="zh-CN">Chinese</option>
                   <option value="ja">Japanese</option>
+<<<<<<< HEAD
                   
+=======
+>>>>>>> 2fb5340052fcd276b9598069452a61be6d86f7c1
                 </select>
               </div>
             </div>

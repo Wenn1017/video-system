@@ -10,7 +10,11 @@ body {
 .login-container {
   justify-content: center;
   display: flex;
+<<<<<<< HEAD
   height: 93vh;
+=======
+  height: 100vh;
+>>>>>>> 2fb5340052fcd276b9598069452a61be6d86f7c1
   padding: 20px; /* Prevents elements from sticking to edges*/
 }
 
@@ -133,9 +137,26 @@ body {
 }
 
 /* Links */
+<<<<<<< HEAD
 .new-account {
   text-align: right;
   margin-top: 30px;
+=======
+.forgot-links {
+  text-align: right;
+  margin-top: 30px;
+}
+
+.forgot-password {
+  font-size: 17px;
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.new-account {
+  text-align: right;
+  margin-top: 20px;
+>>>>>>> 2fb5340052fcd276b9598069452a61be6d86f7c1
   font-size: 17px;
 }
 
