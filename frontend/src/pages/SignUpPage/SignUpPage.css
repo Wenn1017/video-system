@@ -10,22 +10,15 @@ body {
 .signup-container {
   justify-content: center;
   display: flex;
-<<<<<<< HEAD
   height: 93vh;
-=======
   height: 92vh;
->>>>>>> 2fb5340052fcd276b9598069452a61be6d86f7c1
   padding: 20px; /* Prevents elements from sticking to edges*/
 }
 
 /* Left side - Image */
 .left-signup {
   flex: 1;
-<<<<<<< HEAD
   background: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp') no-repeat center center/cover;
-=======
-  background: url('https://tinyurl.com/2n4dvhty') no-repeat center center/cover;
->>>>>>> 2fb5340052fcd276b9598069452a61be6d86f7c1
   display: none; /*Hide on small screens */
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;

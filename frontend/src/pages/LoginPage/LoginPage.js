@@ -85,12 +85,6 @@ function LoginPage() {
               </Form>
             )}
           </Formik>
-
-          <div className="forgot-links">
-            <Link to="/forgot-password" className="forgot-password">
-              Forgot password?
-            </Link>
-          </div>
           <div className="new-account">
             Don't have an account?&nbsp;
             <Link to="/signup" className="register-link">Register here</Link>
