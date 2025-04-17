@@ -55,8 +55,9 @@ class api_login(Resource):
     def post(self):
         user_data = request.get_json()
         response = user.login_user(user_data, bcrypt)
-        token = pyjwt.encode(response['token'], CRYPT, algorithm="HS256")
-        response['token'] = token
+        if 'token' in response and response['token']:
+            token = pyjwt.encode(response['token'], CRYPT, algorithm="HS256")
+            response['token'] = token
         return jsonify(response)
 
 # _________________________ TRANSCRIPTION API ___________________________

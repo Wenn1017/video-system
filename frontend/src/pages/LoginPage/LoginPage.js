@@ -25,6 +25,7 @@ function LoginPage() {
   
       if (data.token) {
         localStorage.setItem("token", data.token);
+        alert(data.success); 
         navigate("/main");
       } else {
         alert(data.error || "Login failed. Please try again."); 

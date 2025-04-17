@@ -124,15 +124,17 @@ def login_user(user_login, bcrypt):
 
         user_record = users.find_one({"email": user_login["email"]})
 
-        if user_record and bcrypt.check_password_hash(user_record["password"], user_login["password"]):
-            identity = {
-                "email": user_record["email"],
-                "username": user_record["username"],
-            }
-
-            return {"success": f"Welcome back, {user_record['username']}!", "token": identity}
+        if user_record:
+            if bcrypt.check_password_hash(user_record["password"], user_login["password"]):
+                identity = {
+                    "email": user_record["email"],
+                    "username": user_record["username"],
+                }
+                return {"success": f"Welcome back, {user_record['username']}!", "token": identity}
+            else:
+                return {"error": "Login failed! Password is incorrect."}
         else:
-            return {"error": "Login failed! Incorrect email or password."}
+            return {"error": "Login failed! Email does not exist."}
 
     except KeyError:
         return {"error": "Invalid key in user_login"}
