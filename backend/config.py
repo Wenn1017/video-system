@@ -9,3 +9,4 @@ class ApplicationConfig:
     SECRET_KEY= os.environ['SECRET_KEY']  # Load secret key
     MONGO_URI = os.getenv("MONGO_URI")  # Load MongoDB URI
     JWT_SECRET_KEY = '123abc.'
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"

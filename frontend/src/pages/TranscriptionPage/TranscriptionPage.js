@@ -133,7 +133,7 @@ const TranscriptionPage = () => {
       });
     });
   
-    doc.save(`${videoTitle.replace(/\s+/g, "_")}.pdf`);
+    doc.save(`${videoTitle.replace(/\s+/g, "_")}_transcription.pdf`);
   };
   
 

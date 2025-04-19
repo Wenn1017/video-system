@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { FiLogOut } from "react-icons/fi";
+import jsPDF from "jspdf";
 import "./SummaryPage.css";
 
 const SummaryPage = () => {
@@ -14,9 +15,27 @@ const SummaryPage = () => {
   const [videoTitle, setVideoTitle] = useState("");
   const [transcript, setTranscript] = useState([]);
 
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-  });
+  const handlePrint = () => {
+    const doc = new jsPDF();
+    doc.setFont("helvetica", "bold");
+    doc.text(videoTitle, 10, 10);
+  
+    doc.setFont("helvetica", "normal");
+    let y = 20;
+  
+    doc.text("Abstractive Summary:", 10, y);
+    y += 10;
+    const abstractiveText = doc.splitTextToSize(abstractiveSummary, 180);
+    doc.text(abstractiveText, 10, y);
+    y += abstractiveText.length * 10;
+  
+    doc.text("Extractive Summary:", 10, y);
+    y += 10;
+    const extractiveText = doc.splitTextToSize(extractiveSummary, 180);
+    doc.text(extractiveText, 10, y);
+  
+    doc.save(`${videoTitle}_summary.pdf`);
+  };
 
   const handleSignOut = () => {
     localStorage.removeItem("token");

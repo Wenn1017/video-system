@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask
 import nltk
 from transformers import pipeline
 from sumy.parsers.plaintext import PlaintextParser
