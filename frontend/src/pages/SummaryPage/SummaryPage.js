@@ -139,7 +139,7 @@ const SummaryPage = () => {
         <div className="summary-main-content">
           <div className="summary-header">
             <h1>{videoTitle || "No Video Selected"}</h1>
-            <button onClick={handlePrint} className="print-btn">Print</button>
+            <button onClick={handlePrint} className="print-btn">Download PDF</button>
           </div>
 
           <div className="summary-content" ref={printRef}>

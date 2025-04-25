@@ -4,7 +4,6 @@ from transformers import pipeline
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lsa import LsaSummarizer
-from sklearn.feature_extraction.text import TfidfVectorizer
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -30,13 +29,6 @@ def summarize_text_sumy(text, sentence_count=3):
     summarizer = LsaSummarizer()
     summary = summarizer(parser.document, sentence_count)
     return " ".join([str(sentence) for sentence in summary])
-
-def extract_keywords_tfidf(text, num_keywords=5):
-    vectorizer = TfidfVectorizer(stop_words="english")
-    vectors = vectorizer.fit_transform([text])
-    feature_names = vectorizer.get_feature_names_out()
-    sorted_indices = vectors.toarray().argsort()[0][-num_keywords:][::-1]
-    return [feature_names[i] for i in sorted_indices]
 
 def generate_summary_and_keywords(text):
 

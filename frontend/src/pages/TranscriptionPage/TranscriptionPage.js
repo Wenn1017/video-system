@@ -175,7 +175,8 @@ const TranscriptionPage = () => {
         <div className="transcription-main-content">
           <div className="transcript-header">
           <h1>{videoTitle || "No Video Selected"}</h1>
-            <button onClick={handlePrint} className="transcript-print-btn">Print</button>
+            <button onClick={handlePrint} className="transcript-print-btn">Print Screen
+            </button>
             <button onClick={handleDownloadPDF} className="transcript-pdf-btn">Download PDF</button>
           </div>
         
